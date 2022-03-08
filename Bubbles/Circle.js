@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, View, TouchableOpacity, Text} from 'react-native';
 import {useGravityAnimation} from './useGravityAnimation';
 import Animated from 'react-native-reanimated';
 
@@ -39,15 +39,18 @@ export const Circle = ({translateX, translateY, diameter}) => {
   const radius = diameter / 2;
 
   return (
-    <Animated.View
-      style={{
-        transform: [{translateX}, {translateY}],
-        position: 'absolute',
-        width: diameter,
-        height: diameter,
-        borderRadius: radius,
-        backgroundColor: 'red',
-      }}></Animated.View>
+    <TouchableOpacity onPress={() => console.log('touched!')}>
+      <Animated.View
+        style={{
+          transform: [{translateX}, {translateY}],
+          position: 'absolute',
+          width: diameter,
+          height: diameter,
+          borderRadius: radius,
+          backgroundColor: '#6486FF',
+        }}
+      />
+    </TouchableOpacity>
   );
 };
 
