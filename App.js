@@ -74,34 +74,35 @@ const App: () => Node = () => {
           )}
         </HabitStack.Screen>
         <HabitStack.Screen
-          options={{
+          options={({route}) => ({
+            title: route.params.tappedHabit.name,
             headerRight: () => (
               <TouchableOpacity
                 onPress={() =>
                   navigationRef.current.navigate('Edit Habit', {
-                    tappedHabit: null,
+                    tappedHabit: route.params.tappedHabit,
                   })
                 }>
                 <Text>Edit</Text>
               </TouchableOpacity>
             ),
-          }}
+          })}
           name="View Habit"
           component={ViewHabit}
         />
         <HabitStack.Screen
-          options={{
+          options={({route}) => ({
+            title: 'Edit ' + route.params.tappedHabit.name,
             headerRight: () => (
               <TouchableOpacity
-                onPress={() =>
-                  navigationRef.current.navigate('Save', {
-                    tappedHabit: null,
-                  })
-                }>
+                onPress={() => {
+                  navigationRef.current.goBack();
+                  // TODO: perform changes
+                }}>
                 <Text>Save</Text>
               </TouchableOpacity>
             ),
-          }}
+          })}
           name="Edit Habit"
           component={EditHabit}
         />
