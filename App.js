@@ -114,8 +114,9 @@ function update() {
 
 */
 
-import React from 'react';
+import React, {useState} from 'react';
 import type {Node} from 'react';
+import {Habit} from './Model/Habit';
 import {
   SafeAreaView,
   ScrollView,
@@ -137,9 +138,39 @@ const App: () => Node = () => {
     flex: 1,
   };
 
+  const onTapHabit = (index, tappedHabit) => {
+    console.log('User tapped ' + tappedHabit.name);
+    const newHabits = habits.slice();
+    newHabits[index].streak += 1;
+    setHabits(newHabits);
+    console.log('Streak ' + habits[index].streak);
+  };
+
+  const onLongPressHabit = (index, pressedHabit) => {
+    console.log('User long pressed ' + pressedHabit.name);
+    const newHabits = habits.slice();
+    newHabits[index].streak += 1;
+    setHabits(newHabits);
+    console.log('Streak ' + habits[index].streak);
+  };
+
+  const hardcodedHabits = [
+    new Habit('Read', '#005F73', 25, []),
+    new Habit('Study', '#0A9396', 5, []),
+    new Habit('Meditate', '#CA6702', 8, []),
+    new Habit('Wakeup Early', '#BB3E03', 15, []),
+    new Habit('Walk Dog', '#AE2012', 30, []),
+  ];
+
+  const [habits, setHabits] = useState(hardcodedHabits);
+
   return (
     <SafeAreaView style={backgroundStyle}>
-      <AnimatedCircleGroup />
+      <AnimatedCircleGroup
+        habits={habits}
+        onTapHabit={onTapHabit}
+        onLongPressHabit={onLongPressHabit}
+      />
     </SafeAreaView>
   );
 };
