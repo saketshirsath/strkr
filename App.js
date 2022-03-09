@@ -47,6 +47,8 @@ const App: () => Node = () => {
 
   const [habits, setHabits] = useState(hardcodedHabits);
 
+  // TODO: use options={({ route }) => ({ title: route.params.name })}
+
   const HabitStack = createNativeStackNavigator();
   return (
     <NavigationContainer ref={navigationRef}>
@@ -61,7 +63,7 @@ const App: () => Node = () => {
                     tappedHabit: null,
                   })
                 }>
-                <Text>Add</Text>
+                <Text style={{fontSize: 30}}>+</Text>
               </TouchableOpacity>
             ),
           }}>
