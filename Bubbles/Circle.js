@@ -40,8 +40,8 @@ export function AnimatedCircleGroupInner({
         return (
           <TouchableOpacity
             key={index}
-            onLongPress={() => onTapHabit(index, p.habit)}
-            onPress={() => onLongPressHabit(index, p.habit)}>
+            onLongPress={() => onLongPressHabit(index, p.habit)}
+            onPress={() => onTapHabit(index, p.habit)}>
             <Circle
               key={index}
               translateX={p.x}
