@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import {BarChart, LineChart} from 'react-native-chart-kit';
 
-export const HabitGraph = ({habit}) => {
+export const HabitGraph = ({habit, width, height}) => {
   const [graphHabit, setGraphHabit] = useState(habit);
 
   const data = {
@@ -24,8 +24,8 @@ export const HabitGraph = ({habit}) => {
   return (
     <BarChart
       data={data}
-      width={350}
-      height={250}
+      width={width}
+      height={height}
       chartConfig={{
         backgroundGradientFrom: graphHabit.color,
         backgroundGradientTo: graphHabit.color,
@@ -72,36 +72,56 @@ export const ViewHabit = ({route, navigation}) => {
     ),
   });
 
-  return (
-    <SafeAreaView style={{flex: 1}}>
-      <View
-        style={{
-          alignItems: 'center',
-          flex: 1,
-          justifyContent: 'space-between',
-        }}>
-        <View>
-          <Text style={{marginTop: 25, textAlign: 'center'}}>
-            Streak: {habit.streak}
-          </Text>
-          <Text style={{textAlign: 'center', marginBottom: 10}}>
-            Last Time Completed: Yesterday
-          </Text>
-          <HabitGraph habit={habit}></HabitGraph>
-        </View>
+  const habitStreak = habit != null ? habit.streak : 1;
+  const [viewDimensions, setViewDimensions] = useState(undefined);
+  const handleLayout = useCallback(event => {
+    const {width, height} = event.nativeEvent.layout;
+    setViewDimensions({width, height});
+  }, []);
+  const isCanvasReady = viewDimensions !== undefined;
 
-        <TouchableOpacity
+  return (
+    <SafeAreaView style={{flex: 1}} onLayout={handleLayout}>
+      {isCanvasReady && (
+        <View
           style={{
-            justifyContent: 'flex-end',
-            marginBottom: 36,
-            backgroundColor: habit.color,
-            color: 'white',
-            padding: 12,
-            borderRadius: 20,
+            alignItems: 'center',
+            flex: 1,
+            justifyContent: 'space-between',
           }}>
-          <Text style={{color: 'white'}}>Complete for Today</Text>
-        </TouchableOpacity>
-      </View>
+          <View>
+            <Text style={{marginTop: 25, textAlign: 'center'}}>
+              Streak: {habit.streak}
+            </Text>
+            <Text style={{textAlign: 'center', marginBottom: 10}}>
+              Last Time Completed: Yesterday
+            </Text>
+            <HabitGraph
+              habit={habit}
+              width={viewDimensions.width * 0.9}
+              height={250}></HabitGraph>
+          </View>
+
+          <TouchableOpacity
+            onPress={() => {
+              console.log(isCanvasReady);
+              let newHabit = {...habit};
+              newHabit.streak += 1;
+
+              onHabitChange(route.params.index, newHabit);
+            }}
+            style={{
+              justifyContent: 'flex-end',
+              marginBottom: 36,
+              backgroundColor: habit.color,
+              color: 'white',
+              padding: 12,
+              borderRadius: 20,
+            }}>
+            <Text style={{color: 'white'}}>Complete for Today</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </SafeAreaView>
   );
 };

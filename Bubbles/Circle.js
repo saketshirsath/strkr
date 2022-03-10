@@ -1,5 +1,11 @@
 import React, {useCallback, useState} from 'react';
-import {StyleSheet, View, TouchableOpacity, Text} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  ScrollView,
+  Text,
+} from 'react-native';
 import {useGravityAnimation} from './useGravityAnimation';
 import Animated from 'react-native-reanimated';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
@@ -38,23 +44,32 @@ export function AnimatedCircleGroupInner({
 
   return (
     <View style={styles.wrap}>
-      {circles.map((p, index) => {
-        return (
-          <TouchableOpacity
-            key={index}
-            onLongPress={() => onLongPressHabit(index, p.habit)}
-            onPress={() => onTapHabit(index, p.habit)}>
-            <Circle
+      <ScrollView
+        horizontal
+        contentContainerStyle={{
+          justifyContent: 'center',
+          alignItems: 'center',
+          flex: 1,
+        }}
+        style={{flex: 1}}>
+        {circles.map((p, index) => {
+          return (
+            <TouchableOpacity
               key={index}
-              translateX={p.x}
-              translateY={p.y}
-              diameter={p.diameter}
-              habit={p.habit}
-              color={p.color}
-            />
-          </TouchableOpacity>
-        );
-      })}
+              onLongPress={() => onLongPressHabit(index, p.habit)}
+              onPress={() => onTapHabit(index, p.habit)}>
+              <Circle
+                key={index}
+                translateX={p.x}
+                translateY={p.y}
+                diameter={p.diameter}
+                habit={p.habit}
+                color={p.color}
+              />
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
     </View>
   );
 }
@@ -103,8 +118,5 @@ const styles = StyleSheet.create({
   flex: {flex: 1},
   wrap: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    overflow: 'hidden',
   },
 });

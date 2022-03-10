@@ -12,7 +12,9 @@ import {navigationRef} from './App';
 import {Habit} from './Model/Habit';
 
 export const HabitColorPicker = ({colors, color, onChangeColor}) => {
-  const [selectedIndex, setSelectedIndex] = useState(colors.indexOf(color));
+  const [selectedIndex, setSelectedIndex] = useState(
+    colors.indexOf(color) == -1 ? 0 : colors.indexOf(color),
+  );
   const [colorPalette, setColorPalette] = useState(colors);
 
   const colorViews = colorPalette.map((color, index) => (
@@ -66,11 +68,8 @@ export const EditHabit = ({route, navigation}) => {
   const [habitName, setHabitName] = useState(
     tappedHabit == null ? '' : tappedHabit.name,
   );
-  const [habitColor, setHabitColor] = useState(
-    tappedHabit == null ? '' : tappedHabit.color,
-  );
 
-  const [colors, setColors] = useState([
+  const colors = [
     '#001219',
     '#005F73',
     '#0A9396',
@@ -80,7 +79,11 @@ export const EditHabit = ({route, navigation}) => {
     '#CA6702',
     '#BB3E03',
     '#AE2012',
-  ]);
+  ];
+
+  const [habitColor, setHabitColor] = useState(
+    tappedHabit == null ? colors[0] : tappedHabit.color,
+  );
 
   const onChangeColor = color => {
     setHabitColor(color);

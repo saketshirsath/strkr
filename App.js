@@ -7,6 +7,7 @@ import {
   useColorScheme,
   View,
   TouchableOpacity,
+  ScrollView,
 } from 'react-native';
 import {NavigationContainer, useNavigation} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -14,6 +15,9 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {AnimatedCircleGroup} from './Bubbles/Circle';
 import {EditHabit} from './EditHabit';
 import {ViewHabit} from './ViewHabit';
+import {faPlus} from '@fortawesome/free-solid-svg-icons';
+import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
+import {GroupHabit} from './GroupHabit';
 
 export const navigationRef = createRef();
 
@@ -39,11 +43,19 @@ const App: () => Node = () => {
   };
 
   const onTapHabit = (index, tappedHabit) => {
-    navigationRef.current.navigate('ViewHabit', {
-      index,
-      tappedHabit,
-      onHabitChange: updateHabit,
-    });
+    if (tappedHabit.groupUserIds.length == 0) {
+      navigationRef.current.navigate('ViewHabit', {
+        index,
+        tappedHabit,
+        onHabitChange: updateHabit,
+      });
+    } else {
+      navigationRef.current.navigate('GroupHabit', {
+        index,
+        tappedHabit,
+        onHabitChange: updateHabit,
+      });
+    }
   };
 
   const onLongPressHabit = (index, pressedHabit) => {
@@ -68,7 +80,7 @@ const App: () => Node = () => {
     <NavigationContainer ref={navigationRef}>
       <HabitStack.Navigator>
         <HabitStack.Screen
-          name="Habits"
+          name="Streaks"
           options={{
             headerRight: () => (
               <TouchableOpacity
@@ -79,7 +91,7 @@ const App: () => Node = () => {
                     index: -1,
                   })
                 }>
-                <Text style={{fontSize: 30}}>+</Text>
+                <FontAwesomeIcon icon={faPlus} />
               </TouchableOpacity>
             ),
           }}>
@@ -100,6 +112,7 @@ const App: () => Node = () => {
         />
         <HabitStack.Screen name="EditHabit" component={EditHabit} />
         <HabitStack.Screen name="NewHabit" component={EditHabit} />
+        <HabitStack.Screen name="GroupHabit" component={GroupHabit} />
       </HabitStack.Navigator>
     </NavigationContainer>
   );
