@@ -1,4 +1,4 @@
-USE streaks;
+USE strkr1;
 
 DROP TABLE IF EXISTS friends;
 DROP TABLE IF EXISTS streakLog;
@@ -10,7 +10,7 @@ DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
     userID varchar(50) NOT NULL UNIQUE,
-    password char(82),
+    password varchar(82),
     firstName varchar(50),
     lastName varchar(50),
     createDate date,
