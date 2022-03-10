@@ -39,7 +39,7 @@ const useSetup = (dimensions, habits) => {
     for (let i = 0; i < circleCount; i++) {
       const circleDiameter = habits[i].streak * 10;
 
-      if (drewCircles.length != 0) {
+      if (drewCircles.length != 0 && i < drewCircles.length) {
         drewCircles[i].diameter = circleDiameter;
         drewCircles[i].d = new Value(circleDiameter);
         drewCircles[i].habit = habits[i];

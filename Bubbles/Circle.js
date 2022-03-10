@@ -2,6 +2,8 @@ import React, {useCallback, useState} from 'react';
 import {StyleSheet, View, TouchableOpacity, Text} from 'react-native';
 import {useGravityAnimation} from './useGravityAnimation';
 import Animated from 'react-native-reanimated';
+import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
+import {faUserGroup} from '@fortawesome/free-solid-svg-icons';
 
 export const AnimatedCircleGroup = ({habits, onLongPressHabit, onTapHabit}) => {
   const [viewDimensions, setViewDimensions] = useState(undefined);
@@ -69,13 +71,25 @@ export const Circle = ({translateX, translateY, diameter, habit}) => {
         backgroundColor: habit.color,
       }}>
       <View
-        style={{width: diameter, height: diameter, justifyContent: 'center'}}>
+        style={{
+          width: diameter,
+          height: diameter,
+          justifyContent: 'center',
+          alignItems: 'center',
+          flexDirection: 'row',
+        }}>
+        {habit.groupUserIds.length <= 0 ? null : (
+          <FontAwesomeIcon
+            icon={faUserGroup}
+            style={{color: 'white', height: 5, width: 5}}
+          />
+        )}
         <Text
           adjustsFontSizeToFit
           numberOfLines={1}
           style={{
-            padding: 10,
             color: 'white',
+            margin: 5,
             textAlign: 'center',
           }}>
           {habit.name}

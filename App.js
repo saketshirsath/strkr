@@ -25,20 +25,36 @@ const App: () => Node = () => {
     flex: 1,
   };
 
+  const updateHabit = (index, newHabit) => {
+    const newHabits = habits.slice();
+    if (index == -1) {
+      newHabits.push(newHabit);
+    } else {
+      newHabits[index].streak = newHabit.streak;
+      newHabits[index].name = newHabit.name;
+      newHabits[index].color = newHabit.color;
+      newHabits[index].groupUserIds = newHabit.groupUserIds;
+    }
+    setHabits(newHabits);
+  };
+
   const onTapHabit = (index, tappedHabit) => {
-    navigationRef.current.navigate('View Habit', {tappedHabit});
+    navigationRef.current.navigate('ViewHabit', {
+      index,
+      tappedHabit,
+      onHabitChange: updateHabit,
+    });
   };
 
   const onLongPressHabit = (index, pressedHabit) => {
     console.log('User long pressed ' + pressedHabit.name);
-    const newHabits = habits.slice();
-    newHabits[index].streak += 1;
-    setHabits(newHabits);
+    pressedHabit.streak += 1;
+    updateHabit(index, pressedHabit);
     console.log('Streak ' + habits[index].streak);
   };
 
   const hardcodedHabits = [
-    new Habit('Read', '#005F73', 25, []),
+    new Habit('Read', '#005F73', 25, ['bob']),
     new Habit('Study', '#0A9396', 5, []),
     new Habit('Meditate', '#CA6702', 8, []),
     new Habit('Wakeup Early', '#BB3E03', 15, []),
@@ -46,8 +62,6 @@ const App: () => Node = () => {
   ];
 
   const [habits, setHabits] = useState(hardcodedHabits);
-
-  // TODO: use options={({ route }) => ({ title: route.params.name })}
 
   const HabitStack = createNativeStackNavigator();
   return (
@@ -59,8 +73,10 @@ const App: () => Node = () => {
             headerRight: () => (
               <TouchableOpacity
                 onPress={() =>
-                  navigationRef.current.navigate('New Habit', {
+                  navigationRef.current.navigate('NewHabit', {
                     tappedHabit: null,
+                    onHabitChange: updateHabit,
+                    index: -1,
                   })
                 }>
                 <Text style={{fontSize: 30}}>+</Text>
@@ -78,37 +94,12 @@ const App: () => Node = () => {
         <HabitStack.Screen
           options={({route}) => ({
             title: route.params.tappedHabit.name,
-            headerRight: () => (
-              <TouchableOpacity
-                onPress={() =>
-                  navigationRef.current.navigate('Edit Habit', {
-                    tappedHabit: route.params.tappedHabit,
-                  })
-                }>
-                <Text>Edit</Text>
-              </TouchableOpacity>
-            ),
           })}
-          name="View Habit"
+          name="ViewHabit"
           component={ViewHabit}
         />
-        <HabitStack.Screen
-          options={({route}) => ({
-            title: 'Edit ' + route.params.tappedHabit.name,
-            headerRight: () => (
-              <TouchableOpacity
-                onPress={() => {
-                  navigationRef.current.goBack();
-                  // TODO: perform changes
-                }}>
-                <Text>Save</Text>
-              </TouchableOpacity>
-            ),
-          })}
-          name="Edit Habit"
-          component={EditHabit}
-        />
-        <HabitStack.Screen name="New Habit" component={EditHabit} />
+        <HabitStack.Screen name="EditHabit" component={EditHabit} />
+        <HabitStack.Screen name="NewHabit" component={EditHabit} />
       </HabitStack.Navigator>
     </NavigationContainer>
   );
