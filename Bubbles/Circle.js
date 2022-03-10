@@ -78,7 +78,7 @@ export const Circle = ({translateX, translateY, diameter, habit}) => {
           alignItems: 'center',
           flexDirection: 'row',
         }}>
-        {habit.groupUserIds.length <= 0 ? null : (
+        {habit == null || habit.groupUserIds.length <= 0 ? null : (
           <FontAwesomeIcon
             icon={faUserGroup}
             style={{color: 'white', height: 5, width: 5}}

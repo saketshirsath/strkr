@@ -94,7 +94,7 @@ export const EditHabit = ({route, navigation}) => {
           navigationRef.current.goBack();
 
           const streak = tappedHabit == null ? 7 : tappedHabit.streak;
-          const groupIds = tappedHabit == null ? [] : tappedHabit.groupIds;
+          const groupIds = tappedHabit == null ? [] : tappedHabit.groupUserIds;
           onHabitChange(
             index,
             new Habit(habitName, habitColor, streak, groupIds),
