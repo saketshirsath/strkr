@@ -97,10 +97,11 @@ export const EditHabit = ({route, navigation}) => {
           navigationRef.current.goBack();
 
           const streak = tappedHabit == null ? 7 : tappedHabit.streak;
+          const ownerName = tappedHabit == null ? null : tappedHabit.ownerName;
           const groupIds = tappedHabit == null ? [] : tappedHabit.groupUserIds;
           onHabitChange(
             index,
-            new Habit(habitName, habitColor, streak, groupIds),
+            new Habit(habitName, habitColor, streak, ownerName, groupIds),
           );
         }}>
         <Text>Save</Text>
