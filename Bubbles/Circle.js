@@ -5,7 +5,12 @@ import Animated from 'react-native-reanimated';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faPeopleArrows, faUserGroup} from '@fortawesome/free-solid-svg-icons';
 
-export const AnimatedCircleGroup = ({habits, onLongPressHabit, onTapHabit}) => {
+export const AnimatedCircleGroup = ({
+  habits,
+  isGroup,
+  onLongPressHabit,
+  onTapHabit,
+}) => {
   const [viewDimensions, setViewDimensions] = useState(undefined);
   const handleLayout = useCallback(event => {
     const {width, height} = event.nativeEvent.layout;
@@ -18,6 +23,7 @@ export const AnimatedCircleGroup = ({habits, onLongPressHabit, onTapHabit}) => {
     <View style={styles.flex} onLayout={handleLayout}>
       {isCanvasReady && (
         <AnimatedCircleGroupInner
+          isGroup={isGroup}
           habits={habits}
           dimensions={viewDimensions}
           onTapHabit={onTapHabit}
@@ -30,6 +36,7 @@ export const AnimatedCircleGroup = ({habits, onLongPressHabit, onTapHabit}) => {
 
 export function AnimatedCircleGroupInner({
   dimensions,
+  isGroup,
   habits,
   onTapHabit,
   onLongPressHabit,
@@ -41,6 +48,7 @@ export function AnimatedCircleGroupInner({
       {circles.map((p, index) => {
         return (
           <Circle
+            isGroup={isGroup}
             key={index}
             index={index}
             onLongPressHabit={onLongPressHabit}
@@ -67,8 +75,14 @@ export const Circle = props => {
     onLongPressHabit,
     onTapHabit,
     index,
+    isGroup,
   } = props;
 
+  const title = isGroup
+    ? habit.ownerName == null
+      ? 'You'
+      : habit.ownerName
+    : habit.name;
   return (
     <AnimatedTouchable
       onLongPress={() => onLongPressHabit(index, habit)}
@@ -89,7 +103,7 @@ export const Circle = props => {
           alignItems: 'center',
           flexDirection: 'row',
         }}>
-        {habit == null || habit.groupUserIds.length <= 0 ? null : (
+        {habit == null || habit.groupUserIds.length <= 0 || isGroup ? null : (
           <FontAwesomeIcon
             icon={faUserGroup}
             style={{color: 'white', height: 5, width: 5}}
@@ -103,7 +117,7 @@ export const Circle = props => {
             margin: 5,
             textAlign: 'center',
           }}>
-          {habit.name}
+          {title}
         </Text>
       </View>
     </AnimatedTouchable>
