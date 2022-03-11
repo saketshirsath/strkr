@@ -8,9 +8,30 @@ provider:
   runtime: python3.8
 
 functions:
-  hello:
-    handler: scripts/handler.hello
+  new-streak:
+    handler: scripts/streaks.addStreak
     events:
-      - httpApi:
-          path: /
+      - http:
+          path: /new-streak
+          method: post
+
+  get-streak-by-id:
+    handler: scripts/streaks.getStreakByID
+    events:
+      - http:
+          path: /get-streak-by-id/{id}
           method: get
+  
+  get-streak-by-user:
+    handler: scripts/streaks.getStreakByUser
+    events:
+      - http:
+          path: /get-streak-by-user/{id}
+          method: get
+
+  increment-streak:
+    handler: scripts/streaks.incrementStreak
+    events:
+      - http:
+          path: /increment-streak
+          method: post
