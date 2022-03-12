@@ -4,6 +4,7 @@ import {useGravityAnimation} from './useGravityAnimation';
 import Animated from 'react-native-reanimated';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faPeopleArrows, faUserGroup} from '@fortawesome/free-solid-svg-icons';
+import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
 
 export const AnimatedCircleGroup = ({
   habits,
@@ -44,7 +45,17 @@ export function AnimatedCircleGroupInner({
   const circles = useGravityAnimation(dimensions, habits);
 
   return (
-    <View style={styles.wrap}>
+    <ReactNativeZoomableView
+      maxZoom={1.5}
+      minZoom={0.5}
+      zoomStep={0.5}
+      initialZoom={1}
+      bindToBorders={true}
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}>
       {circles.map((p, index) => {
         return (
           <Circle
@@ -61,7 +72,7 @@ export function AnimatedCircleGroupInner({
           />
         );
       })}
-    </View>
+    </ReactNativeZoomableView>
   );
 }
 
