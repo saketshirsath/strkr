@@ -5,7 +5,24 @@ frameworkVersion: '3'
 
 provider:
   name: aws
+  region: us-east-1
   runtime: python3.8
+  lambdaHashingVersion: '20201221'
+  iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - rds-data:ExecuteSql
+          - rds-data:ExecuteStatement
+        Resource: "arn:aws:rds:us-east-1:279499514840:cluster:stkr-1"
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+          - secretsmanager:PutResourcePolicy
+          - secretsmanager:PutSecretValue
+          - secretsmanager:DeleteSecret
+          - secretsmanager:DescribeSecret
+          - secretsmanager:TagResource
+        Resource: "arn:aws:secretsmanager:us-east-1:279499514840:secret:strk-access-LZpcd5"
 
 functions:
   new-streak:

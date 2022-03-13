@@ -1,4 +1,4 @@
-USE strkr1;
+USE strkr;
 
 DROP TABLE IF EXISTS friends;
 DROP TABLE IF EXISTS streakLog;

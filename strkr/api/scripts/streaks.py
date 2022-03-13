@@ -30,7 +30,7 @@ def getStreakByID(event, context):
         .replace("-streakID-", streakID), streaksTable))
     if len(response['records']) != 0:
         status_code = 200
-        response = json.dumps(parse_reponse(response))
+        response = json.dumps(parse_reponse(response, streaksTable))
     else:
         status_code = 404
         response = f"{streakID} not found"
@@ -41,12 +41,12 @@ def getStreakByID(event, context):
         }
 
 def getStreakByUser(event, context):
-    userID = event['pathParameters']['user'] 
+    userID = event['pathParameters']['id'] 
     response = execute_statement(format_query(getStreaksbyUserQuery\
         .replace("-userID-", userID), usersByStreakTable))
     if len(response['records']) != 0:
         status_code = 200
-        response = json.dumps(parse_reponse(response))
+        response = json.dumps(parse_reponse(response, usersByStreakTable))
     else:
         status_code = 404
         response = f"{userID} has no streaks"
@@ -64,20 +64,21 @@ def incrementStreak(event, context):
        response = f"missing/invalid inputs: {mismatched_input}"
     else:
         execute_statement(format_query(incrementStreakQuery\
-            .replace("-userID-", body['userID'], streaksTable, body)\
-            .replace("-streakID-", body['streakID']), streaksTable))\
-            .replace("-dateLastCompleted-", body['dateCompleted'])
+            .replace("-userID-", body['userID'])\
+            .replace("-streakID-", body['streakID'])\
+            .replace("-dateLastCompleted-", body['dateCompleted']), usersByStreakTable))
         execute_statement(format_query(logStreakQuery, streakLogTable, body))
+        status_code = 200
     return {
         "statusCode": status_code, 
         'headers': header,
-        "body": response
+        "body": f"{body['streakID']} incrementated"
         }  
 
 
 def unwrap(body):
     from re import compile
-    pattern = compile(r'([A-Za-z_]+)" *: *"?([0-9A-Za-z@\._/ -#]+)')    
+    pattern = compile(r'([A-Za-z_]+)" *: *"?([0-9A-Za-z@\._/ \-#]+)')    
     body_dict = dict()
     for var, val in pattern.findall(body):
         body_dict[var] = val
@@ -88,9 +89,9 @@ def unwrap(body):
 
 rds_client = boto3.client('rds-data')
 
-database_name = 'strkr-1'
-db_cluster_arn = 'arn:aws:rds:us-east-1:279499514840:db:strkr-1'
-db_crendentials_secrets_store_arn = 'arn:aws:secretsmanager:us-east-1:279499514840:secret:strk-dbkey-J9zsFF'
+database_name = 'strkr'
+db_cluster_arn = 'arn:aws:rds:us-east-1:279499514840:cluster:stkr-1'
+db_crendentials_secrets_store_arn = 'arn:aws:secretsmanager:us-east-1:279499514840:secret:strk-access-LZpcd5'
 streaksTable = {'table_name' : 'streaks', 
                 'table_fields' : {
                                     'streakID', 
@@ -145,9 +146,9 @@ streakLogTable = { 'table_name'   : 'streakLog',
 
 insertStreaksTableQuery = "INSERT INTO -DB-NAME-.-TABLE-NAME- (-VALUE-NAMES-) VALUES (-UPDATE-VALUES-)"
 insertStreaksbyUserTableQuery =  "INSERT INTO -DB-NAME-.-TABLE-NAME- (-VALUE-NAMES-) VALUES (-UPDATE-VALUES-)"
-getStreaksbyIDQuery = "SELECT * FROM -DB-NAME-.-TABLE-NAME- WHERE streakID = -streakID-"
-getStreaksbyUserQuery = "SELECT * FROM -DB-NAME-.-TABLE-NAME- WHERE userID = -streakID-"
-incrementStreakQuery = "UPDATE -DB-NAME-.-TABLE-NAME- SET completionCount = ISNULL(completionCount, 0) + 1, dateLastCompleted = -dateLastCompleted- WHERE streakID = -streakID- AND userID = -userID-"
+getStreaksbyIDQuery = "SELECT * FROM -DB-NAME-.-TABLE-NAME- WHERE streakID = -streakID-".replace('*', ', '.join(streaksTable['table_fields']))
+getStreaksbyUserQuery = "SELECT * FROM -DB-NAME-.-TABLE-NAME- WHERE userID = '-userID-'".replace('*', ', '.join(usersByStreakTable['table_fields']))
+incrementStreakQuery = "UPDATE -DB-NAME-.-TABLE-NAME- SET completionCount = IFNULL(completionCount, 0) + 1, dateLastCompleted = '-dateLastCompleted-' WHERE streakID = -streakID- AND userID = '-userID-'"
 logStreakQuery = "INSERT INTO -DB-NAME-.-TABLE-NAME- (-VALUE-NAMES-) VALUES (-UPDATE-VALUES-)"
 
 def execute_statement(sql):
@@ -174,4 +175,4 @@ def format_query(query, table, body={}):
     return f_query
 
 def parse_reponse(response, table):
-    return {f: list(v.values())[0] for f, v in zip(table['table_fields'], response['records'][0])}
+    return [{f: list(v.values())[0] for f, v in zip(table['table_fields'], i)} for i in response['records']]
