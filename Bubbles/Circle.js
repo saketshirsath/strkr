@@ -1,17 +1,17 @@
 import React, {useCallback, useState} from 'react';
-import {
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  ScrollView,
-  Text,
-} from 'react-native';
+import {StyleSheet, View, TouchableOpacity, Text} from 'react-native';
 import {useGravityAnimation} from './useGravityAnimation';
 import Animated from 'react-native-reanimated';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faUserGroup} from '@fortawesome/free-solid-svg-icons';
+import {faPeopleArrows, faUserGroup} from '@fortawesome/free-solid-svg-icons';
+import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
 
-export const AnimatedCircleGroup = ({habits, onLongPressHabit, onTapHabit}) => {
+export const AnimatedCircleGroup = ({
+  habits,
+  isGroup,
+  onLongPressHabit,
+  onTapHabit,
+}) => {
   const [viewDimensions, setViewDimensions] = useState(undefined);
   const handleLayout = useCallback(event => {
     const {width, height} = event.nativeEvent.layout;
@@ -24,6 +24,7 @@ export const AnimatedCircleGroup = ({habits, onLongPressHabit, onTapHabit}) => {
     <View style={styles.flex} onLayout={handleLayout}>
       {isCanvasReady && (
         <AnimatedCircleGroupInner
+          isGroup={isGroup}
           habits={habits}
           dimensions={viewDimensions}
           onTapHabit={onTapHabit}
@@ -36,6 +37,7 @@ export const AnimatedCircleGroup = ({habits, onLongPressHabit, onTapHabit}) => {
 
 export function AnimatedCircleGroupInner({
   dimensions,
+  isGroup,
   habits,
   onTapHabit,
   onLongPressHabit,
@@ -43,40 +45,59 @@ export function AnimatedCircleGroupInner({
   const circles = useGravityAnimation(dimensions, habits);
 
   return (
-    <View style={styles.wrap}>
-      <ScrollView
-        horizontal
-        contentContainerStyle={{
-          justifyContent: 'center',
-          alignItems: 'center',
-          flex: 1,
-        }}
-        style={{flex: 1}}>
-        {circles.map((p, index) => {
-          return (
-            <TouchableOpacity
-              key={index}
-              onLongPress={() => onLongPressHabit(index, p.habit)}
-              onPress={() => onTapHabit(index, p.habit)}>
-              <Circle
-                key={index}
-                translateX={p.x}
-                translateY={p.y}
-                diameter={p.diameter}
-                habit={p.habit}
-                color={p.color}
-              />
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
-    </View>
+    <ReactNativeZoomableView
+      maxZoom={1.5}
+      minZoom={0.5}
+      zoomStep={0.5}
+      initialZoom={1}
+      bindToBorders={true}
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}>
+      {circles.map((p, index) => {
+        return (
+          <Circle
+            isGroup={isGroup}
+            key={index}
+            index={index}
+            onLongPressHabit={onLongPressHabit}
+            onTapHabit={onTapHabit}
+            translateX={p.x}
+            translateY={p.y}
+            diameter={p.diameter}
+            habit={p.habit}
+            color={p.color}
+          />
+        );
+      })}
+    </ReactNativeZoomableView>
   );
 }
 
-export const Circle = ({translateX, translateY, diameter, habit}) => {
+export const Circle = props => {
+  const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
+  const {
+    translateX,
+    translateY,
+    diameter,
+    habit,
+    onLongPressHabit,
+    onTapHabit,
+    index,
+    isGroup,
+  } = props;
+
+  const title = isGroup
+    ? habit.ownerName == null
+      ? 'You'
+      : habit.ownerName
+    : habit.name;
   return (
-    <Animated.View
+    <AnimatedTouchable
+      onLongPress={() => onLongPressHabit(index, habit)}
+      onPress={() => onTapHabit(index, habit)}
       style={{
         transform: [{translateX}, {translateY}],
         position: 'absolute',
@@ -93,7 +114,7 @@ export const Circle = ({translateX, translateY, diameter, habit}) => {
           alignItems: 'center',
           flexDirection: 'row',
         }}>
-        {habit == null || habit.groupUserIds.length <= 0 ? null : (
+        {habit == null || habit.groupUserIds.length <= 0 || isGroup ? null : (
           <FontAwesomeIcon
             icon={faUserGroup}
             style={{color: 'white', height: 5, width: 5}}
@@ -107,10 +128,10 @@ export const Circle = ({translateX, translateY, diameter, habit}) => {
             margin: 5,
             textAlign: 'center',
           }}>
-          {habit.name}
+          {title}
         </Text>
       </View>
-    </Animated.View>
+    </AnimatedTouchable>
   );
 };
 
@@ -118,5 +139,8 @@ const styles = StyleSheet.create({
   flex: {flex: 1},
   wrap: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
   },
 });

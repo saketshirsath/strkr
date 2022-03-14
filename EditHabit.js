@@ -1,3 +1,4 @@
+import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import React, {useCallback, useState} from 'react';
 import {
   StyleSheet,
@@ -7,9 +8,23 @@ import {
   SafeAreaView,
   TextInput,
   ScrollView,
+  Alert,
 } from 'react-native';
 import {navigationRef} from './App';
 import {Habit} from './Model/Habit';
+import {faCheck, faX} from '@fortawesome/free-solid-svg-icons';
+
+export const colors = [
+  '#001219',
+  '#005F73',
+  '#0A9396',
+  '#94D2BD',
+  '#E9D8A6',
+  '#EE9B00',
+  '#CA6702',
+  '#BB3E03',
+  '#AE2012',
+];
 
 export const HabitColorPicker = ({colors, color, onChangeColor}) => {
   const [selectedIndex, setSelectedIndex] = useState(
@@ -31,16 +46,16 @@ export const HabitColorPicker = ({colors, color, onChangeColor}) => {
         borderRadius: 20,
         justifyContent: 'center',
         margin: 8,
+        alignContent: 'center',
+        alignItems: 'center',
       }}>
       {index == selectedIndex ? (
-        <Text
+        <FontAwesomeIcon
+          size={10}
           style={{
-            textAlign: 'center',
-            textAlignVertical: 'center',
             color: 'white',
-          }}>
-          ✓
-        </Text>
+          }}
+          icon={faCheck}></FontAwesomeIcon>
       ) : null}
     </TouchableOpacity>
   ));
@@ -69,20 +84,11 @@ export const EditHabit = ({route, navigation}) => {
     tappedHabit == null ? '' : tappedHabit.name,
   );
 
-  const colors = [
-    '#001219',
-    '#005F73',
-    '#0A9396',
-    '#94D2BD',
-    '#E9D8A6',
-    '#EE9B00',
-    '#CA6702',
-    '#BB3E03',
-    '#AE2012',
-  ];
-
   const [habitColor, setHabitColor] = useState(
     tappedHabit == null ? colors[0] : tappedHabit.color,
+  );
+  const [friends, setFriends] = useState(
+    tappedHabit == null ? [] : tappedHabit.groupUserIds,
   );
 
   const onChangeColor = color => {
@@ -96,17 +102,67 @@ export const EditHabit = ({route, navigation}) => {
         onPress={() => {
           navigationRef.current.goBack();
 
-          const streak = tappedHabit == null ? 7 : tappedHabit.streak;
-          const groupIds = tappedHabit == null ? [] : tappedHabit.groupUserIds;
-          onHabitChange(
-            index,
-            new Habit(habitName, habitColor, streak, groupIds),
-          );
+          updateHabit();
         }}>
         <Text>Save</Text>
       </TouchableOpacity>
     ),
   });
+
+  const updateHabit = () => {
+    const streak = tappedHabit == null ? 7 : tappedHabit.streak;
+    const ownerName = tappedHabit == null ? null : tappedHabit.ownerName;
+    onHabitChange(
+      index,
+      new Habit(habitName, habitColor, streak, ownerName, friends),
+    );
+  };
+
+  const updateFriend = (friend, isAdd) => {
+    console.log('Adding friend ' + friend);
+    if (tappedHabit) {
+      let newFriends = friends.slice();
+      if (isAdd) {
+        newFriends.push(
+          new Habit(
+            habitName,
+            colors[Math.floor(Math.random() * colors.length)],
+            5,
+            friend,
+            [],
+          ),
+        );
+      } else {
+        newFriends = newFriends.filter(f => {
+          const trimmedOwnerName = f.ownerName.trim();
+          return trimmedOwnerName !== friend.trim();
+        });
+      }
+
+      setFriends(newFriends);
+      updateHabit();
+    }
+  };
+
+  const selectedInviteFriends = () => {
+    Alert.prompt(
+      "Friend's Name",
+      "Enter a friend's name to form a group habit with them.",
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: text => {
+            console.log('called');
+            updateFriend(text, true);
+          },
+        },
+      ],
+    );
+  };
 
   return (
     <SafeAreaView style={{flex: 1}}>
@@ -121,6 +177,7 @@ export const EditHabit = ({route, navigation}) => {
         color={habitColor}></HabitColorPicker>
       <View style={{marginTop: 10, alignItems: 'center'}}>
         <TouchableOpacity
+          onPress={selectedInviteFriends}
           style={{
             backgroundColor: 'gray',
             color: 'white',
@@ -136,6 +193,21 @@ export const EditHabit = ({route, navigation}) => {
             Invite Friends
           </Text>
         </TouchableOpacity>
+        <View style={{marginTop: 15}}>
+          {friends == null || friends.length == 0
+            ? null
+            : friends.map(friend => (
+                <View style={{flexDirection: 'row'}}>
+                  <Text>{friend.ownerName}</Text>
+                  <TouchableOpacity
+                    onPress={() => updateFriend(friend.ownerName, false)}>
+                    <FontAwesomeIcon
+                      color={'#d00000'}
+                      icon={faX}></FontAwesomeIcon>
+                  </TouchableOpacity>
+                </View>
+              ))}
+        </View>
       </View>
     </SafeAreaView>
   );

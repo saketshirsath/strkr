@@ -8,6 +8,7 @@ import {
   View,
   TouchableOpacity,
   ScrollView,
+  Pressable,
 } from 'react-native';
 import {NavigationContainer, useNavigation} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -22,13 +23,6 @@ import {GroupHabit} from './GroupHabit';
 export const navigationRef = createRef();
 
 const App: () => Node = () => {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-    flex: 1,
-  };
-
   const updateHabit = (index, newHabit) => {
     const newHabits = habits.slice();
     if (index == -1) {
@@ -65,12 +59,16 @@ const App: () => Node = () => {
     console.log('Streak ' + habits[index].streak);
   };
 
+  const nickRead = new Habit('Read', '#001219', 22, 'Nick', []);
+  const ashleyRead = new Habit('Read', '#94D2BD', 8, 'Ashley', []);
+  const carlotaRead = new Habit('Read', '#EE9B00', 15, 'Carlota', []);
+
   const hardcodedHabits = [
-    new Habit('Read', '#005F73', 25, ['bob']),
-    new Habit('Study', '#0A9396', 5, []),
-    new Habit('Meditate', '#CA6702', 8, []),
-    new Habit('Wakeup Early', '#BB3E03', 15, []),
-    new Habit('Walk Dog', '#AE2012', 30, []),
+    new Habit('Read', '#005F73', 25, null, [nickRead, ashleyRead, carlotaRead]),
+    new Habit('Study', '#0A9396', 5, null, []),
+    new Habit('Meditate', '#CA6702', 8, null, []),
+    new Habit('Wakeup Early', '#BB3E03', 15, null, []),
+    new Habit('Walk Dog', '#AE2012', 30, null, []),
   ];
 
   const [habits, setHabits] = useState(hardcodedHabits);
@@ -97,6 +95,7 @@ const App: () => Node = () => {
           }}>
           {props => (
             <AnimatedCircleGroup
+              isGroup={false}
               habits={habits}
               onTapHabit={onTapHabit}
               onLongPressHabit={onLongPressHabit}

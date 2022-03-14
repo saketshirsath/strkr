@@ -20,6 +20,7 @@ export const GroupHabit = ({route, navigation}) => {
   };
 
   navigation.setOptions({
+    title: habit.name,
     headerRight: () => (
       <TouchableOpacity
         onPress={() => {
@@ -36,15 +37,12 @@ export const GroupHabit = ({route, navigation}) => {
 
   const habitStreak = habit != null ? habit.streak : 1;
   const [viewDimensions, setViewDimensions] = useState(undefined);
-  const handleLayout = useCallback(event => {
-    const {width, height} = event.nativeEvent.layout;
-    setViewDimensions({width, height});
-  }, []);
-  const isCanvasReady = viewDimensions !== undefined;
 
   return (
     <AnimatedCircleGroup
-      habits={[habit]}
+      habits={[habit.groupUserIds, habit].flat()}
+      isGroup
+      // TODO: do this
       onTapHabit={() => {}}
       onLongPressHabit={() => {}}
     />

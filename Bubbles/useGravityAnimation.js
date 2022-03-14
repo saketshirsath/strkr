@@ -22,7 +22,7 @@ const random = (min, max) => Math.random() * (max - min) + min;
 let drewCircles = [];
 export const useGravityAnimation = (dimensions, habits) => {
   drewCircles = useSetup(dimensions, habits);
-  useDraw(drewCircles);
+  useDraw(dimensions, drewCircles);
 
   return drewCircles;
 };
@@ -69,7 +69,7 @@ const useSetup = (dimensions, habits) => {
   return circles;
 };
 
-const useDraw = circles => {
+const useDraw = (dimensinos, circles) => {
   const nativeCode = useMemo(() => {
     const clock = new Clock();
     const runCode = [cond(clockRunning(clock), 0, startClock(clock)), clock];
@@ -77,18 +77,8 @@ const useDraw = circles => {
     // gravity. We push cirlces to 0, 0
     for (let i = 0; i < circles.length; i++) {
       const circle = circles[i];
-      runCode.push(
-        set(
-          circle.x,
-          add(circle.x, multiply(add(circle.x, divide(circle.d, 2)), -0.01)),
-        ),
-      );
-      runCode.push(
-        set(
-          circle.y,
-          add(circle.y, multiply(add(circle.y, divide(circle.d, 2)), -0.01)),
-        ),
-      );
+      runCode.push(set(circle.x, add(circle.x, multiply(circle.x, -0.01))));
+      runCode.push(set(circle.y, add(circle.y, multiply(circle.y, -0.01))));
     }
 
     for (let i = 0; i < circles.length; i++) {
@@ -96,12 +86,8 @@ const useDraw = circles => {
         if (i == j) continue;
         const circleA = circles[i];
         const circleB = circles[j];
-        const ax = add(circleA.x, divide(circleA.d, 2.0));
-        const ay = add(circleA.y, divide(circleA.d, 2.0));
-        const bx = add(circleB.x, divide(circleB.d, 2.0));
-        const by = add(circleB.y, divide(circleB.d, 2.0));
-        const dx = sub(bx, ax);
-        const dy = sub(by, ay);
+        const dx = sub(circleB.x, circleA.x);
+        const dy = sub(circleB.y, circleA.y);
         const totalDiameter = add(
           divide(circleA.d, 2.0),
           divide(circleB.d, 2.0),
