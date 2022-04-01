@@ -3455,6 +3455,11 @@
   "resolved" "https://registry.npmjs.org/fs.realpath/-/fs.realpath-1.0.0.tgz"
   "version" "1.0.0"
 
+"fsevents@^2.1.2":
+  "integrity" "sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA=="
+  "resolved" "https://registry.npmjs.org/fsevents/-/fsevents-2.3.2.tgz"
+  "version" "2.3.2"
+
 "function-bind@^1.1.1":
   "integrity" "sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A=="
   "resolved" "https://registry.npmjs.org/function-bind/-/function-bind-1.1.1.tgz"
@@ -5868,6 +5873,11 @@
     "lodash" "^4.17.21"
     "prop-types" "^15.7.2"
 
+"react-native-login-screen@^3.0.2":
+  "integrity" "sha512-vOnhzWr3nL5YBAkLGhFUcv1ANTsOB//iRQBNTYgY/FxtfZuzAjFTy7eWswdMnahgrmOYyeIw/DT1IgEy6sxYJw=="
+  "resolved" "https://registry.npmjs.org/react-native-login-screen/-/react-native-login-screen-3.0.2.tgz"
+  "version" "3.0.2"
+
 "react-native-reanimated@^2.4.1":
   "integrity" "sha512-kvf7ylGlwa5hxMQ+wpPFjQrI2c6eexf53/xRo+dvXBNefGmSYaYR5sFtD0XMMzIPQlkCB9tJ0Pu9+2WCQUY7Cg=="
   "resolved" "https://registry.npmjs.org/react-native-reanimated/-/react-native-reanimated-2.4.1.tgz"
@@ -5901,6 +5911,11 @@
   dependencies:
     "css-select" "^4.2.1"
     "css-tree" "^1.0.0-alpha.39"
+
+"react-native-text-input-interactive@^0.1.3", "react-native-text-input-interactive@>= 0.1.3":
+  "integrity" "sha512-tPhP7HVDmS7RmMJwq2RQIAWkgX5t3BNJt0IaJi+0rW8JsizcT7nhP6/sHQXMV9TxoP6dLTysCE9gFy/Me5kJfg=="
+  "resolved" "https://registry.npmjs.org/react-native-text-input-interactive/-/react-native-text-input-interactive-0.1.3.tgz"
+  "version" "0.1.3"
 
 "react-native-wheel-color-picker@^1.2.0":
   "integrity" "sha512-j4IcN7so9dZAkXyrPTTaPqCKsjkGBZkd5F7HqLo0OTRB1EZX3Ww5VMKsKjloxv6Omv193wGOhwfG20ec2KnxJQ=="

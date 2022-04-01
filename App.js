@@ -19,8 +19,9 @@ import {ViewHabit} from './ViewHabit';
 import {faPlus} from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {GroupHabit} from './GroupHabit';
-
+import LoginScreen from 'react-native-login-screen';
 import axios from 'axios';
+import {log} from 'react-native-reanimated';
 
 const baseUrl = 'https://elibe420n8.execute-api.us-east-1.amazonaws.com/dev';
 export const navigationRef = createRef();
@@ -85,6 +86,7 @@ const App: () => Node = () => {
   ];
 
   const [habits, setHabits] = useState(hardcodedHabits);
+  const [isLoggedIn, setLoggedIn] = useState(true);
 
   const HabitStack = createNativeStackNavigator();
 
@@ -93,7 +95,7 @@ const App: () => Node = () => {
     fetchStreaksForUser('test@test.com');
   }, []);
 
-  return (
+  const appComp = (
     <NavigationContainer ref={navigationRef}>
       <HabitStack.Navigator>
         <HabitStack.Screen
@@ -134,6 +136,20 @@ const App: () => Node = () => {
       </HabitStack.Navigator>
     </NavigationContainer>
   );
+
+  const logInComp = (
+    <LoginScreen
+      onLoginPress={() => {
+        setLoggedIn(true);
+      }}
+      onEmailChange={email => {}}
+      onPasswordChange={password => {}}
+      disableSocialButtons
+      disableDivider
+      haveAccountText={''}></LoginScreen>
+  );
+
+  return isLoggedIn ? appComp : logInComp;
 };
 
 const styles = StyleSheet.create({});
