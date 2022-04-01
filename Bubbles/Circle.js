@@ -50,7 +50,6 @@ export function AnimatedCircleGroupInner({
       minZoom={0.5}
       zoomStep={0.5}
       initialZoom={1}
-      bindToBorders={true}
       style={{
         flex: 1,
         justifyContent: 'center',
@@ -99,6 +98,7 @@ export const Circle = props => {
       onLongPress={() => onLongPressHabit(index, habit)}
       onPress={() => onTapHabit(index, habit)}
       style={{
+        opacity: true ? 1 : 0.5,
         transform: [{translateX}, {translateY}],
         position: 'absolute',
         width: diameter,
@@ -120,16 +120,26 @@ export const Circle = props => {
             style={{color: 'white', height: 5, width: 5}}
           />
         )}
-        <Text
-          adjustsFontSizeToFit
-          numberOfLines={1}
-          style={{
-            color: 'white',
-            margin: 5,
-            textAlign: 'center',
-          }}>
-          {title}
-        </Text>
+        <View style={{margin: 5}}>
+          <Text
+            adjustsFontSizeToFit
+            numberOfLines={1}
+            style={{
+              color: 'white',
+              textAlign: 'center',
+            }}>
+            {title}
+          </Text>
+          <Text
+            adjustsFontSizeToFit
+            numberOfLines={1}
+            style={{
+              color: 'white',
+              textAlign: 'center',
+            }}>
+            {habit.streak}
+          </Text>
+        </View>
       </View>
     </AnimatedTouchable>
   );

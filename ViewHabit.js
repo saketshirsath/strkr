@@ -12,10 +12,10 @@ export const HabitGraph = ({habit, width, height}) => {
   const [graphHabit, setGraphHabit] = useState(habit);
 
   const data = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
     datasets: [
       {
-        data: [20, 45, 28, 80, 99],
+        data: [20, 21, 22, 23, 24],
         strokeWidth: 2,
       },
     ],

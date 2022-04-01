@@ -20,7 +20,20 @@ import {faPlus} from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {GroupHabit} from './GroupHabit';
 
+import axios from 'axios';
+
+const baseUrl = 'https://elibe420n8.execute-api.us-east-1.amazonaws.com/dev';
 export const navigationRef = createRef();
+
+// https://elibe420n8.execute-api.us-east-1.amazonaws.com/dev/get-streak-by-user/{user}
+const fetchStreaksForUser = async userid => {
+  await axios({
+    method: 'get',
+    url: `${baseUrl}/get-streak-by-user/${userid}`,
+  }).then(response => {
+    console.log(response.data);
+  });
+};
 
 const App: () => Node = () => {
   const updateHabit = (index, newHabit) => {
@@ -74,6 +87,12 @@ const App: () => Node = () => {
   const [habits, setHabits] = useState(hardcodedHabits);
 
   const HabitStack = createNativeStackNavigator();
+
+  // Fetch all streaks for the user only once
+  React.useEffect(() => {
+    fetchStreaksForUser('test@test.com');
+  }, []);
+
   return (
     <NavigationContainer ref={navigationRef}>
       <HabitStack.Navigator>
