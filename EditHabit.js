@@ -11,7 +11,6 @@ import {
   Alert,
 } from 'react-native';
 import {navigationRef} from './App';
-import {Habit} from './Model/Habit';
 import {faCheck, faX} from '@fortawesome/free-solid-svg-icons';
 
 export const colors = [
@@ -81,14 +80,14 @@ export const EditHabit = ({route, navigation}) => {
   console.log(route.params);
   const onHabitChange = route.params.onHabitChange;
   const [habitName, setHabitName] = useState(
-    tappedHabit == null ? '' : tappedHabit.name,
+    tappedHabit == null ? '' : tappedHabit.streakName,
   );
 
   const [habitColor, setHabitColor] = useState(
-    tappedHabit == null ? colors[0] : tappedHabit.color,
+    tappedHabit == null ? colors[0] : tappedHabit.primaryColor,
   );
   const [friends, setFriends] = useState(
-    tappedHabit == null ? [] : tappedHabit.groupUserIds,
+    tappedHabit == null ? [] : tappedHabit.friends,
   );
 
   const onChangeColor = color => {
@@ -96,7 +95,8 @@ export const EditHabit = ({route, navigation}) => {
   };
 
   navigation.setOptions({
-    title: tappedHabit == null ? 'New Streak' : 'Edit ' + tappedHabit.name,
+    title:
+      tappedHabit == null ? 'New Streak' : 'Edit ' + tappedHabit.streakName,
     headerRight: () => (
       <TouchableOpacity
         onPress={() => {
@@ -110,44 +110,51 @@ export const EditHabit = ({route, navigation}) => {
   });
 
   const updateHabit = () => {
-    const streak = tappedHabit == null ? 7 : tappedHabit.streak;
-    const ownerName = tappedHabit == null ? null : tappedHabit.ownerName;
-    onHabitChange(
-      index,
-      new Habit(habitName, habitColor, streak, ownerName, friends),
-    );
+    const streak = tappedHabit == null ? 7 : tappedHabit.completionCount;
+    const ownerName = tappedHabit == null ? null : tappedHabit.firstName;
+    const clone = JSON.parse(JSON.stringify(tappedHabit));
+    clone.completionCount = streak;
+    clone.friends = friends;
+    clone.primaryColor = habitColor;
+    if (ownerName != null) {
+      clone.firstName = ownerName;
+    }
+    onHabitChange(index, clone);
   };
 
   const updateFriend = (friend, isAdd) => {
     console.log('Adding friend ' + friend);
-    if (tappedHabit) {
-      let newFriends = friends.slice();
-      if (isAdd) {
-        newFriends.push(
-          new Habit(
-            habitName,
-            colors[Math.floor(Math.random() * colors.length)],
-            5,
-            friend,
-            [],
-          ),
-        );
-      } else {
-        newFriends = newFriends.filter(f => {
-          const trimmedOwnerName = f.ownerName.trim();
-          return trimmedOwnerName !== friend.trim();
-        });
-      }
+    // TODO: fix adding friend not working
+    // if (tappedHabit) {
+    //   let newFriends = friends.slice();
+    //   if (isAdd) {
+    //     let clone = JSON.parse(JSON.stringify(tappedHabit));
+    //     clone.primaryColor = colors[Math.floor(Math.random() * colors.length)];
+    //     newFriends.push(
+    //       new Habit(
+    //         habitName,
+    //         colors[Math.floor(Math.random() * colors.length)],
+    //         5,
+    //         friend,
+    //         [],
+    //       ),
+    //     );
+    //   } else {
+    //     newFriends = newFriends.filter(f => {
+    //       const trimmedOwnerName = f.ownerName.trim();
+    //       return trimmedOwnerName !== friend.trim();
+    //     });
+    //   }
 
-      setFriends(newFriends);
-      updateHabit();
-    }
+    //   setFriends(newFriends);
+    //   updateHabit();
+    // }
   };
 
   const selectedInviteFriends = () => {
     Alert.prompt(
-      "Friend's Name",
-      "Enter a friend's name to form a group habit with them.",
+      "Friend's Email",
+      "Enter a friend's email to form a group habit with them.",
       [
         {
           text: 'Cancel',
@@ -198,9 +205,9 @@ export const EditHabit = ({route, navigation}) => {
             ? null
             : friends.map(friend => (
                 <View style={{flexDirection: 'row'}}>
-                  <Text>{friend.ownerName}</Text>
+                  <Text>{friend.firstName}</Text>
                   <TouchableOpacity
-                    onPress={() => updateFriend(friend.ownerName, false)}>
+                    onPress={() => updateFriend(friend.userID, false)}>
                     <FontAwesomeIcon
                       color={'#d00000'}
                       icon={faX}></FontAwesomeIcon>

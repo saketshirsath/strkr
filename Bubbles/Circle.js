@@ -89,10 +89,10 @@ export const Circle = props => {
   } = props;
 
   const title = isGroup
-    ? habit.ownerName == null
+    ? habit.firstName == null
       ? 'You'
-      : habit.ownerName
-    : habit.name;
+      : habit.firstName
+    : habit.streakName;
   return (
     <AnimatedTouchable
       onLongPress={() => onLongPressHabit(index, habit)}
@@ -104,7 +104,7 @@ export const Circle = props => {
         width: diameter,
         height: diameter,
         borderRadius: diameter / 2,
-        backgroundColor: habit.color,
+        backgroundColor: habit.primaryColor,
       }}>
       <View
         style={{
@@ -114,7 +114,10 @@ export const Circle = props => {
           alignItems: 'center',
           flexDirection: 'row',
         }}>
-        {habit == null || habit.groupUserIds.length <= 0 || isGroup ? null : (
+        {habit == null ||
+        habit.friends == null ||
+        habit.friends.length <= 0 ||
+        isGroup ? null : (
           <FontAwesomeIcon
             icon={faUserGroup}
             style={{color: 'white', height: 5, width: 5}}
@@ -137,7 +140,7 @@ export const Circle = props => {
               color: 'white',
               textAlign: 'center',
             }}>
-            {habit.streak}
+            {habit.completionCount}
           </Text>
         </View>
       </View>

@@ -1,6 +1,5 @@
 import React, {useState, createRef} from 'react';
 import type {Node} from 'react';
-import {Habit} from './Model/Habit';
 import {
   StyleSheet,
   Text,
@@ -26,6 +25,62 @@ import {log} from 'react-native-reanimated';
 const baseUrl = 'https://elibe420n8.execute-api.us-east-1.amazonaws.com/dev';
 export const navigationRef = createRef();
 
+const dummyData = [
+  {
+    streakID: 1,
+    completionCount: 10,
+    dateLastCompleted: '2022-03-10',
+    streakName: 'Read',
+    primaryColor: '#001219',
+    frequencySetting: 1,
+    secondaryColor: '#001219',
+    isGroupStreak: 0,
+  },
+  {
+    streakID: 2,
+    completionCount: 7,
+    dateLastCompleted: '2022-03-10',
+    streakName: 'Workout',
+    primaryColor: '#005F73',
+    frequencySetting: 1,
+    secondaryColor: '#005F73',
+    isGroupStreak: 1,
+    friends: [
+      {
+        userID: 'bob@gmail.com',
+        firstName: 'Nick',
+        lastName: 'Grana',
+        primaryColor: '#0A9396',
+        secondaryColor: '#0A9396',
+        completionCount: 15,
+      },
+    ],
+  },
+];
+// "streakID"
+// "completionCount"
+// "dateLastCompleted":
+// "streakName"
+// "primaryColor"
+// "frequencySetting":
+// "secondaryColor":
+// "isGroupStreak":
+// "friends" : [
+// K
+// "userID"
+// "firstName"
+// "lastName"
+// "primaryColor"
+// "secondaryColor"
+// "completionCount":
+// ] # optional if isGroupStreak
+// == 1
+// "streakLog" : [
+// "dateCompleted"
+// "completionCount"
+// ] # max len == 7
+// 7
+
 // https://elibe420n8.execute-api.us-east-1.amazonaws.com/dev/get-streak-by-user/{user}
 const fetchStreaksForUser = async userid => {
   await axios({
@@ -42,16 +97,15 @@ const App: () => Node = () => {
     if (index == -1) {
       newHabits.push(newHabit);
     } else {
-      newHabits[index].streak = newHabit.streak;
-      newHabits[index].name = newHabit.name;
-      newHabits[index].color = newHabit.color;
-      newHabits[index].groupUserIds = newHabit.groupUserIds;
+      newHabits[index].streakName = newHabit.streakName;
+      newHabits[index].primaryColor = newHabit.primaryColor;
+      newHabits[index].friends = newHabit.friends;
     }
     setHabits(newHabits);
   };
 
   const onTapHabit = (index, tappedHabit) => {
-    if (tappedHabit.groupUserIds.length == 0) {
+    if (tappedHabit.friends == null || tappedHabit.friends.length == 0) {
       navigationRef.current.navigate('ViewHabit', {
         index,
         tappedHabit,
@@ -67,25 +121,13 @@ const App: () => Node = () => {
   };
 
   const onLongPressHabit = (index, pressedHabit) => {
-    console.log('User long pressed ' + pressedHabit.name);
-    pressedHabit.streak += 1;
+    console.log('User long pressed ' + pressedHabit.streakName);
+    pressedHabit.completionCount += 1;
     updateHabit(index, pressedHabit);
-    console.log('Streak ' + habits[index].streak);
+    console.log('Streak ' + habits[index].streakName);
   };
 
-  const nickRead = new Habit('Read', '#001219', 22, 'Nick', []);
-  const ashleyRead = new Habit('Read', '#94D2BD', 8, 'Ashley', []);
-  const carlotaRead = new Habit('Read', '#EE9B00', 15, 'Carlota', []);
-
-  const hardcodedHabits = [
-    new Habit('Read', '#005F73', 25, null, [nickRead, ashleyRead, carlotaRead]),
-    new Habit('Study', '#0A9396', 5, null, []),
-    new Habit('Meditate', '#CA6702', 8, null, []),
-    new Habit('Wakeup Early', '#BB3E03', 15, null, []),
-    new Habit('Walk Dog', '#AE2012', 30, null, []),
-  ];
-
-  const [habits, setHabits] = useState(hardcodedHabits);
+  const [habits, setHabits] = useState(dummyData);
   const [isLoggedIn, setLoggedIn] = useState(true);
 
   const HabitStack = createNativeStackNavigator();

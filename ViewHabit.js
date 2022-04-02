@@ -27,8 +27,8 @@ export const HabitGraph = ({habit, width, height}) => {
       width={width}
       height={height}
       chartConfig={{
-        backgroundGradientFrom: graphHabit.color,
-        backgroundGradientTo: graphHabit.color,
+        backgroundGradientFrom: graphHabit.primaryColor,
+        backgroundGradientTo: graphHabit.primaryColor,
         decimalPlaces: 0,
         color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
         labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
@@ -72,7 +72,7 @@ export const ViewHabit = ({route, navigation}) => {
     ),
   });
 
-  const habitStreak = habit != null ? habit.streak : 1;
+  const habitStreak = habit != null ? habit.completionCount : 1;
   const [viewDimensions, setViewDimensions] = useState(undefined);
   const handleLayout = useCallback(event => {
     const {width, height} = event.nativeEvent.layout;
@@ -91,7 +91,7 @@ export const ViewHabit = ({route, navigation}) => {
           }}>
           <View>
             <Text style={{marginTop: 25, textAlign: 'center'}}>
-              Streak: {habit.streak}
+              Streak: {habit.completionCount}
             </Text>
             <Text style={{textAlign: 'center', marginBottom: 10}}>
               Last Time Completed: Yesterday
@@ -106,14 +106,14 @@ export const ViewHabit = ({route, navigation}) => {
             onPress={() => {
               console.log(isCanvasReady);
               let newHabit = {...habit};
-              newHabit.streak += 1;
+              newHabit.completionCount += 1;
 
               onHabitChange(route.params.index, newHabit);
             }}
             style={{
               justifyContent: 'flex-end',
               marginBottom: 36,
-              backgroundColor: habit.color,
+              backgroundColor: habit.primaryColor,
               color: 'white',
               padding: 12,
               borderRadius: 20,

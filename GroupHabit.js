@@ -20,7 +20,7 @@ export const GroupHabit = ({route, navigation}) => {
   };
 
   navigation.setOptions({
-    title: habit.name,
+    title: habit.streakName,
     headerRight: () => (
       <TouchableOpacity
         onPress={() => {
@@ -35,12 +35,12 @@ export const GroupHabit = ({route, navigation}) => {
     ),
   });
 
-  const habitStreak = habit != null ? habit.streak : 1;
+  const habitStreak = habit != null ? habit.completionCount : 1;
   const [viewDimensions, setViewDimensions] = useState(undefined);
 
   return (
     <AnimatedCircleGroup
-      habits={[habit.groupUserIds, habit].flat()}
+      habits={[habit.friends, habit].flat()}
       isGroup
       // TODO: do this
       onTapHabit={() => {}}
