@@ -112,14 +112,21 @@ export const EditHabit = ({route, navigation}) => {
   const updateHabit = () => {
     const streak = tappedHabit == null ? 7 : tappedHabit.completionCount;
     const ownerName = tappedHabit == null ? null : tappedHabit.firstName;
-    const clone = JSON.parse(JSON.stringify(tappedHabit));
-    clone.completionCount = streak;
-    clone.friends = friends;
-    clone.primaryColor = habitColor;
-    if (ownerName != null) {
-      clone.firstName = ownerName;
+    if (tappedHabit == null) {
+      // TODO: push new habit
+      const newHabit = {};
+      onHabitChange(-1, newHabit);
+    } else {
+      const clone = JSON.parse(JSON.stringify(tappedHabit));
+      clone.streakName = habitName;
+      clone.completionCount = streak;
+      clone.friends = friends;
+      clone.primaryColor = habitColor;
+      if (ownerName != null) {
+        clone.firstName = ownerName;
+      }
+      onHabitChange(index, clone);
     }
-    onHabitChange(index, clone);
   };
 
   const updateFriend = (friend, isAdd) => {

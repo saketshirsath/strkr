@@ -35,6 +35,16 @@ const dummyData = [
     frequencySetting: 1,
     secondaryColor: '#001219',
     isGroupStreak: 0,
+    streakLog: [
+      {
+        dateCompleted: '2022-03-10',
+        completionCount: 1,
+      },
+      {
+        dateCompleted: '2022-03-11',
+        completionCount: 1,
+      },
+    ],
   },
   {
     streakID: 2,
@@ -96,12 +106,17 @@ const App: () => Node = () => {
     const newHabits = habits.slice();
     if (index == -1) {
       newHabits.push(newHabit);
+      setHabits(newHabits);
+      return newHabit;
     } else {
       newHabits[index].streakName = newHabit.streakName;
       newHabits[index].primaryColor = newHabit.primaryColor;
       newHabits[index].friends = newHabit.friends;
+      setHabits(newHabits);
+      return newHabit[index];
     }
-    setHabits(newHabits);
+
+    // TODO: send post with data
   };
 
   const onTapHabit = (index, tappedHabit) => {
@@ -116,6 +131,8 @@ const App: () => Node = () => {
         index,
         tappedHabit,
         onHabitChange: updateHabit,
+        onLongPressHabit: onLongPressHabit,
+        onTapHabit: onTapHabit,
       });
     }
   };
@@ -125,6 +142,7 @@ const App: () => Node = () => {
     pressedHabit.completionCount += 1;
     updateHabit(index, pressedHabit);
     console.log('Streak ' + habits[index].streakName);
+    return pressedHabit;
   };
 
   const [habits, setHabits] = useState(dummyData);

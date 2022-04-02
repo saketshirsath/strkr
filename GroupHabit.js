@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import {BarChart, LineChart} from 'react-native-chart-kit';
 import {AnimatedCircleGroup} from './Bubbles/Circle';
+import {navigationRef} from './App';
 
 export const GroupHabit = ({route, navigation}) => {
   const [habit, setHabit] = useState(
@@ -17,6 +18,20 @@ export const GroupHabit = ({route, navigation}) => {
   const onHabitChange = (index, habit) => {
     route.params.onHabitChange(index, habit);
     setHabit(habit);
+  };
+
+  const onLongPressHabit = (index, pressedHabit) => {
+    route.params.onLongPressHabit(index, pressedHabit);
+    pressedHabit.completionCount += 1;
+    setHabit(pressedHabit);
+  };
+
+  const onTapHabit = (index, tappedHabit) => {
+    navigationRef.current.navigate('ViewHabit', {
+      index,
+      tappedHabit,
+      onHabitChange: onHabitChange,
+    });
   };
 
   navigation.setOptions({
@@ -42,9 +57,9 @@ export const GroupHabit = ({route, navigation}) => {
     <AnimatedCircleGroup
       habits={[habit.friends, habit].flat()}
       isGroup
-      // TODO: do this
-      onTapHabit={() => {}}
-      onLongPressHabit={() => {}}
+      onTapHabit={onTapHabit}
+      onLongPressHabit={onLongPressHabit}
+      allowTapHabit={tapped => tapped.userID == habit.userID}
     />
   );
 };

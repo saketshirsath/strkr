@@ -58,6 +58,7 @@ export const ViewHabit = ({route, navigation}) => {
   };
 
   navigation.setOptions({
+    title: habit.streakName,
     headerRight: () => (
       <TouchableOpacity
         onPress={() => {

@@ -11,6 +11,7 @@ export const AnimatedCircleGroup = ({
   isGroup,
   onLongPressHabit,
   onTapHabit,
+  allowTapHabit,
 }) => {
   const [viewDimensions, setViewDimensions] = useState(undefined);
   const handleLayout = useCallback(event => {
@@ -29,6 +30,7 @@ export const AnimatedCircleGroup = ({
           dimensions={viewDimensions}
           onTapHabit={onTapHabit}
           onLongPressHabit={onLongPressHabit}
+          allowTapHabit={allowTapHabit}
         />
       )}
     </View>
@@ -41,6 +43,7 @@ export function AnimatedCircleGroupInner({
   habits,
   onTapHabit,
   onLongPressHabit,
+  allowTapHabit,
 }) {
   const circles = useGravityAnimation(dimensions, habits);
 
@@ -68,6 +71,7 @@ export function AnimatedCircleGroupInner({
             diameter={p.diameter}
             habit={p.habit}
             color={p.color}
+            allowTapHabit={allowTapHabit}
           />
         );
       })}
@@ -86,6 +90,7 @@ export const Circle = props => {
     onTapHabit,
     index,
     isGroup,
+    allowTapHabit,
   } = props;
 
   const title = isGroup
@@ -95,6 +100,7 @@ export const Circle = props => {
     : habit.streakName;
   return (
     <AnimatedTouchable
+      disabled={allowTapHabit == null ? false : !allowTapHabit(habit)}
       onLongPress={() => onLongPressHabit(index, habit)}
       onPress={() => onTapHabit(index, habit)}
       style={{
