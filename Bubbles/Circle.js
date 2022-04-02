@@ -139,7 +139,7 @@ export const Circle = props => {
             style={{color: 'white', height: 5, width: 5}}
           />
         )}
-        <View style={{margin: 5}}>
+        <View>
           <Text
             adjustsFontSizeToFit
             numberOfLines={1}

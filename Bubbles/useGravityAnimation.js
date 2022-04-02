@@ -37,7 +37,7 @@ const useSetup = (dimensions, habits) => {
 
     const angle = (2 * Math.PI) / circleCount;
     for (let i = 0; i < circleCount; i++) {
-      const circleDiameter = habits[i].completionCount * 10;
+      const circleDiameter = (habits[i].completionCount + 7) * 10;
 
       if (drewCircles.length != 0 && i < drewCircles.length) {
         drewCircles[i].diameter = circleDiameter;

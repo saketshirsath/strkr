@@ -28,7 +28,7 @@ export const navigationRef = createRef();
 const dummyData = [
   {
     streakID: 1,
-    completionCount: 10,
+    completionCount: 1,
     dateLastCompleted: '2022-03-10',
     streakName: 'Read',
     primaryColor: '#001219',
