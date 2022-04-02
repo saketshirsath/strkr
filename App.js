@@ -91,6 +91,15 @@ const dummyData = [
 // ] # max len == 7
 // 7
 
+export const isToday = date => {
+  const today = new Date();
+  return (
+    date.getDate() == today.getDate() &&
+    date.getMonth() == today.getMonth() &&
+    date.getFullYear() == today.getFullYear()
+  );
+};
+
 // https://elibe420n8.execute-api.us-east-1.amazonaws.com/dev/get-streak-by-user/{user}
 const fetchStreaksForUser = async userid => {
   await axios({
@@ -112,6 +121,7 @@ const App: () => Node = () => {
       newHabits[index].streakName = newHabit.streakName;
       newHabits[index].primaryColor = newHabit.primaryColor;
       newHabits[index].friends = newHabit.friends;
+      newHabits[index].dateLastCompleted = newHabit.dateLastCompleted;
       setHabits(newHabits);
       return newHabit[index];
     }
@@ -138,10 +148,17 @@ const App: () => Node = () => {
   };
 
   const onLongPressHabit = (index, pressedHabit) => {
-    console.log('User long pressed ' + pressedHabit.streakName);
+    // already completed do nothing
+    if (
+      pressedHabit.dateLastCompleted != null &&
+      isToday(new Date(pressedHabit.dateLastCompleted))
+    ) {
+      return pressedHabit;
+    }
+
     pressedHabit.completionCount += 1;
+    pressedHabit.dateLastCompleted = new Date().toISOString();
     updateHabit(index, pressedHabit);
-    console.log('Streak ' + habits[index].streakName);
     return pressedHabit;
   };
 

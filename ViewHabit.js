@@ -7,6 +7,7 @@ import {
   SafeAreaView,
 } from 'react-native';
 import {BarChart, LineChart} from 'react-native-chart-kit';
+import {isToday} from './App';
 
 export const HabitGraph = ({habit, width, height}) => {
   const [graphHabit, setGraphHabit] = useState(habit);
@@ -80,6 +81,9 @@ export const ViewHabit = ({route, navigation}) => {
     setViewDimensions({width, height});
   }, []);
   const isCanvasReady = viewDimensions !== undefined;
+  const allowCompletion =
+    habit.dateLastCompleted != null &&
+    !isToday(new Date(habit.dateLastCompleted));
 
   return (
     <SafeAreaView style={{flex: 1}} onLayout={handleLayout}>
@@ -104,14 +108,25 @@ export const ViewHabit = ({route, navigation}) => {
           </View>
 
           <TouchableOpacity
+            disabled={!allowCompletion}
             onPress={() => {
               console.log(isCanvasReady);
               let newHabit = {...habit};
+              // already completed do nothing
+              if (
+                newHabit.dateLastCompleted != null &&
+                isToday(new Date(newHabit.dateLastCompleted))
+              ) {
+                return;
+              }
+
               newHabit.completionCount += 1;
+              newHabit.dateLastCompleted = new Date().toISOString();
 
               onHabitChange(route.params.index, newHabit);
             }}
             style={{
+              opacity: allowCompletion ? 1 : 0.3,
               justifyContent: 'flex-end',
               marginBottom: 36,
               backgroundColor: habit.primaryColor,

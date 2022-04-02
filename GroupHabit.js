@@ -21,9 +21,8 @@ export const GroupHabit = ({route, navigation}) => {
   };
 
   const onLongPressHabit = (index, pressedHabit) => {
-    route.params.onLongPressHabit(index, pressedHabit);
-    pressedHabit.completionCount += 1;
-    setHabit(pressedHabit);
+    let newHabit = {...pressedHabit};
+    setHabit(route.params.onLongPressHabit(index, newHabit));
   };
 
   const onTapHabit = (index, tappedHabit) => {

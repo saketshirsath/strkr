@@ -5,6 +5,7 @@ import Animated from 'react-native-reanimated';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faPeopleArrows, faUserGroup} from '@fortawesome/free-solid-svg-icons';
 import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
+import {isToday} from '../App';
 
 export const AnimatedCircleGroup = ({
   habits,
@@ -53,6 +54,8 @@ export function AnimatedCircleGroupInner({
       minZoom={0.5}
       zoomStep={0.5}
       initialZoom={1}
+      doubleTapZoomToCenter
+      zoom
       style={{
         flex: 1,
         justifyContent: 'center',
@@ -98,13 +101,20 @@ export const Circle = props => {
       ? 'You'
       : habit.firstName
     : habit.streakName;
+  const allowCompletion =
+    habit.dateLastCompleted == null ||
+    !isToday(new Date(habit.dateLastCompleted));
   return (
     <AnimatedTouchable
       disabled={allowTapHabit == null ? false : !allowTapHabit(habit)}
-      onLongPress={() => onLongPressHabit(index, habit)}
+      onLongPress={() => {
+        if (allowCompletion) {
+          onLongPressHabit(index, habit);
+        }
+      }}
       onPress={() => onTapHabit(index, habit)}
       style={{
-        opacity: true ? 1 : 0.5,
+        opacity: allowCompletion ? 1 : 0.3,
         transform: [{translateX}, {translateY}],
         position: 'absolute',
         width: diameter,
