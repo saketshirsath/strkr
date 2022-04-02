@@ -82,8 +82,11 @@ export const ViewHabit = ({route, navigation}) => {
   }, []);
   const isCanvasReady = viewDimensions !== undefined;
   const allowCompletion =
-    habit.dateLastCompleted != null &&
+    habit.dateLastCompleted == null ||
     !isToday(new Date(habit.dateLastCompleted));
+
+  let lastCompDate =
+    habit.dateLastCompleted != null ? habit.dateLastCompleted : 'Never';
 
   return (
     <SafeAreaView style={{flex: 1}} onLayout={handleLayout}>
@@ -99,7 +102,7 @@ export const ViewHabit = ({route, navigation}) => {
               Streak: {habit.completionCount}
             </Text>
             <Text style={{textAlign: 'center', marginBottom: 10}}>
-              Last Time Completed: Yesterday
+              Last Time Completed: {lastCompDate}
             </Text>
             <HabitGraph
               habit={habit}
@@ -113,10 +116,7 @@ export const ViewHabit = ({route, navigation}) => {
               console.log(isCanvasReady);
               let newHabit = {...habit};
               // already completed do nothing
-              if (
-                newHabit.dateLastCompleted != null &&
-                isToday(new Date(newHabit.dateLastCompleted))
-              ) {
+              if (!allowCompletion) {
                 return;
               }
 

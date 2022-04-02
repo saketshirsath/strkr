@@ -34,7 +34,6 @@ const dummyData = [
     primaryColor: '#001219',
     frequencySetting: 1,
     secondaryColor: '#001219',
-    isGroupStreak: 0,
     streakLog: [
       {
         dateCompleted: '2022-03-10',
@@ -54,7 +53,6 @@ const dummyData = [
     primaryColor: '#005F73',
     frequencySetting: 1,
     secondaryColor: '#005F73',
-    isGroupStreak: 1,
     friends: [
       {
         userID: 'bob@gmail.com',

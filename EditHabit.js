@@ -113,8 +113,13 @@ export const EditHabit = ({route, navigation}) => {
     const streak = tappedHabit == null ? 7 : tappedHabit.completionCount;
     const ownerName = tappedHabit == null ? null : tappedHabit.firstName;
     if (tappedHabit == null) {
-      // TODO: push new habit
-      const newHabit = {};
+      const newHabit = {
+        completionCount: 1,
+        streakName: habitName,
+        primaryColor: habitColor,
+        frequencySetting: 1,
+        secondaryColor: habitColor,
+      };
       onHabitChange(-1, newHabit);
     } else {
       const clone = JSON.parse(JSON.stringify(tappedHabit));
@@ -130,32 +135,28 @@ export const EditHabit = ({route, navigation}) => {
   };
 
   const updateFriend = (friend, isAdd) => {
-    console.log('Adding friend ' + friend);
-    // TODO: fix adding friend not working
-    // if (tappedHabit) {
-    //   let newFriends = friends.slice();
-    //   if (isAdd) {
-    //     let clone = JSON.parse(JSON.stringify(tappedHabit));
-    //     clone.primaryColor = colors[Math.floor(Math.random() * colors.length)];
-    //     newFriends.push(
-    //       new Habit(
-    //         habitName,
-    //         colors[Math.floor(Math.random() * colors.length)],
-    //         5,
-    //         friend,
-    //         [],
-    //       ),
-    //     );
-    //   } else {
-    //     newFriends = newFriends.filter(f => {
-    //       const trimmedOwnerName = f.ownerName.trim();
-    //       return trimmedOwnerName !== friend.trim();
-    //     });
-    //   }
+    if (tappedHabit) {
+      let newFriends = friends != null ? friends.slice() : [];
+      let clone = {...tappedHabit};
 
-    //   setFriends(newFriends);
-    //   updateHabit();
-    // }
+      if (isAdd) {
+        const friendColor = colors[Math.floor(Math.random() * colors.length)];
+        clone.primaryColor = friendColor;
+        clone.secondaryColor = friendColor;
+        clone.completionCount = 1;
+        clone.firstName = friend.split('@')[0];
+        clone.userID = friend;
+        newFriends.push(clone);
+      } else {
+        newFriends = newFriends.filter(f => {
+          const trimmedOwnerName = f.userID.trim();
+          return trimmedOwnerName != friend.trim();
+        });
+      }
+
+      setFriends(newFriends);
+      updateHabit();
+    }
   };
 
   const selectedInviteFriends = () => {
@@ -212,7 +213,11 @@ export const EditHabit = ({route, navigation}) => {
             ? null
             : friends.map(friend => (
                 <View style={{flexDirection: 'row'}}>
-                  <Text>{friend.firstName}</Text>
+                  <Text>
+                    {friend.firstName == null
+                      ? friend.userID
+                      : friend.firstName}
+                  </Text>
                   <TouchableOpacity
                     onPress={() => updateFriend(friend.userID, false)}>
                     <FontAwesomeIcon
