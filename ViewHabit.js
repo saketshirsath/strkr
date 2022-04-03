@@ -10,8 +10,6 @@ import {BarChart, LineChart} from 'react-native-chart-kit';
 import {isToday} from './App';
 
 export const HabitGraph = ({habit, width, height}) => {
-  const [graphHabit, setGraphHabit] = useState(habit);
-
   const data = {
     labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
     datasets: [
@@ -28,8 +26,8 @@ export const HabitGraph = ({habit, width, height}) => {
       width={width}
       height={height}
       chartConfig={{
-        backgroundGradientFrom: graphHabit.primaryColor,
-        backgroundGradientTo: graphHabit.primaryColor,
+        backgroundGradientFrom: habit.primaryColor,
+        backgroundGradientTo: habit.primaryColor,
         decimalPlaces: 0,
         color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
         labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
@@ -56,7 +54,16 @@ export const ViewHabit = ({route, navigation}) => {
   const onHabitChange = (index, habit) => {
     route.params.onHabitChange(index, habit);
     setHabit(habit);
+    setAllowCompletion(
+      habit.dateLastCompleted == null ||
+        !isToday(new Date(habit.dateLastCompleted)),
+    );
   };
+
+  const [allowCompletion, setAllowCompletion] = useState(
+    habit.dateLastCompleted == null ||
+      !isToday(new Date(habit.dateLastCompleted)),
+  );
 
   navigation.setOptions({
     title: habit.streakName,
@@ -81,9 +88,6 @@ export const ViewHabit = ({route, navigation}) => {
     setViewDimensions({width, height});
   }, []);
   const isCanvasReady = viewDimensions !== undefined;
-  const allowCompletion =
-    habit.dateLastCompleted == null ||
-    !isToday(new Date(habit.dateLastCompleted));
 
   let lastCompDate =
     habit.dateLastCompleted != null ? habit.dateLastCompleted : 'Never';
@@ -111,22 +115,18 @@ export const ViewHabit = ({route, navigation}) => {
           </View>
 
           <TouchableOpacity
-            disabled={!allowCompletion}
             onPress={() => {
               console.log(isCanvasReady);
               let newHabit = {...habit};
-              // already completed do nothing
-              if (!allowCompletion) {
-                return;
-              }
 
-              newHabit.completionCount += 1;
-              newHabit.dateLastCompleted = new Date().toISOString();
+              newHabit.completionCount += allowCompletion ? 1 : -1;
+              newHabit.dateLastCompleted = allowCompletion
+                ? new Date().toISOString()
+                : null;
 
               onHabitChange(route.params.index, newHabit);
             }}
             style={{
-              opacity: allowCompletion ? 1 : 0.3,
               justifyContent: 'flex-end',
               marginBottom: 36,
               backgroundColor: habit.primaryColor,
@@ -134,7 +134,9 @@ export const ViewHabit = ({route, navigation}) => {
               padding: 12,
               borderRadius: 20,
             }}>
-            <Text style={{color: 'white'}}>Complete for Today</Text>
+            <Text style={{color: 'white'}}>
+              {allowCompletion ? 'Complete for Today' : 'Undo Completion'}
+            </Text>
           </TouchableOpacity>
         </View>
       )}

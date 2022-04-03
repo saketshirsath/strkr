@@ -20,7 +20,6 @@ import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {GroupHabit} from './GroupHabit';
 import LoginScreen from 'react-native-login-screen';
 import axios from 'axios';
-import {log} from 'react-native-reanimated';
 
 const baseUrl = 'https://elibe420n8.execute-api.us-east-1.amazonaws.com/dev';
 export const navigationRef = createRef();
@@ -28,12 +27,69 @@ export const navigationRef = createRef();
 const dummyData = [
   {
     streakID: 1,
-    completionCount: 1,
+    completionCount: 5,
     dateLastCompleted: '2022-03-10',
-    streakName: 'Read',
-    primaryColor: '#001219',
+    streakName: 'Study',
+    primaryColor: '#0A9396',
     frequencySetting: 1,
-    secondaryColor: '#001219',
+    secondaryColor: '#0A9396',
+    streakLog: [
+      {
+        dateCompleted: '2022-03-10',
+        completionCount: 1,
+      },
+      {
+        dateCompleted: '2022-03-11',
+        completionCount: 1,
+      },
+    ],
+  },
+  {
+    streakID: 3,
+    completionCount: 2,
+    dateLastCompleted: '2022-03-10',
+    streakName: 'Meditate',
+    primaryColor: '#CA6702',
+    frequencySetting: 1,
+    secondaryColor: '#CA6702',
+    streakLog: [
+      {
+        dateCompleted: '2022-03-10',
+        completionCount: 1,
+      },
+      {
+        dateCompleted: '2022-03-11',
+        completionCount: 1,
+      },
+    ],
+  },
+  {
+    streakID: 4,
+    completionCount: 11,
+    dateLastCompleted: '2022-03-10',
+    streakName: 'Wakeup Early',
+    primaryColor: '#BB3E03',
+    frequencySetting: 1,
+    secondaryColor: '#BB3E03',
+    streakLog: [
+      {
+        dateCompleted: '2022-03-10',
+        completionCount: 1,
+      },
+      {
+        dateCompleted: '2022-03-11',
+        completionCount: 1,
+      },
+    ],
+  },
+  {
+    streakID: 4,
+    completionCount: 25,
+    dateLastCompleted: '2022-03-10',
+    streakName: 'Walk Dog',
+    primaryColor: '#AE2012',
+    frequencySetting: 1,
+    secondaryColor: '#AE2012',
     streakLog: [
       {
         dateCompleted: '2022-03-10',
@@ -47,7 +103,7 @@ const dummyData = [
   },
   {
     streakID: 2,
-    completionCount: 7,
+    completionCount: 8,
     dateLastCompleted: '2022-03-10',
     streakName: 'Workout',
     primaryColor: '#005F73',
@@ -55,12 +111,25 @@ const dummyData = [
     secondaryColor: '#005F73',
     friends: [
       {
-        userID: 'bob@gmail.com',
+        userID: 'test@test.com',
         firstName: 'Nick',
-        lastName: 'Grana',
-        primaryColor: '#0A9396',
-        secondaryColor: '#0A9396',
-        completionCount: 15,
+        primaryColor: '#001219',
+        secondaryColor: '#001219',
+        completionCount: 2,
+      },
+      {
+        userID: 'test@test.com',
+        firstName: 'Ashley',
+        primaryColor: '#94D2BD',
+        secondaryColor: '#94D2BD',
+        completionCount: 18,
+      },
+      {
+        userID: 'test@test.com',
+        firstName: 'Carlota',
+        primaryColor: '#EE9B00',
+        secondaryColor: '#EE9B00',
+        completionCount: 13,
       },
     ],
   },
@@ -100,12 +169,15 @@ export const isToday = date => {
 
 // https://elibe420n8.execute-api.us-east-1.amazonaws.com/dev/get-streak-by-user/{user}
 const fetchStreaksForUser = async userid => {
+  finalOutput = null;
   await axios({
     method: 'get',
     url: `${baseUrl}/get-streak-by-user/${userid}`,
   }).then(response => {
-    console.log(response.data);
+    finalOutput = response.data;
   });
+  console.log(finalOutput);
+  return finalOutput;
 };
 
 const App: () => Node = () => {
@@ -167,7 +239,14 @@ const App: () => Node = () => {
 
   // Fetch all streaks for the user only once
   React.useEffect(() => {
-    fetchStreaksForUser('test@test.com');
+    const userid = 'test@test.com';
+    axios({
+      method: 'get',
+      url: `${baseUrl}/get-streak-by-user/${userid}`,
+    }).then(response => {
+      setHabits(response.data);
+      console.log(respone.data);
+    });
   }, []);
 
   const appComp = (
