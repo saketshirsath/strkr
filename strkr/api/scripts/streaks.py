@@ -13,9 +13,10 @@ def addStreak(event, context):
        status_code = 404
        response = f"missing/invalid inputs: {mismatched_input}"
     else:
-        execute_statement(format_query(insertStreaksTableQuery, streaksTable, body))
-        execute_statement(format_query(insertStreaksbyUserTableQuery, usersByStreakTable, 
-                                        {i : body[i] for i in usersByStreakTable['primary_keys']}))
+        execute_statement(format_query(insertStreaksTableQuery, streaksTable,  {i : body[i] for i in streaksTable['primary_keys']}))
+        execute_statement(format_query(insertStreaksbyUserTableQuery, 
+                                        usersByStreakTable, 
+                                        {i : body[i] for i in usersByStreakTable['table_fields'] - {'streakID'}}))
         status_code = 200
         response = "Streak was added"
     return {
@@ -46,7 +47,16 @@ def getStreakByUser(event, context):
         .replace("-userID-", userID), usersByStreakTable))
     if len(response['records']) != 0:
         status_code = 200
-        response = json.dumps(parse_reponse(response, usersByStreakTable))
+        response = parse_reponse(response, userReturn)
+        for r in response:
+            if r['isGroupStreak']:
+                friends = execute_statement(format_query(getFriendStreaksQuery\
+                    .replace("-streakID-", str(r['streakID'])), usersByStreakTable))
+                r['friends'] = json.dumps(parse_reponse(friends, friendStreak))
+            streakLog = execute_statement(format_query(getStreakLogQuery\
+                .replace("-streakID-", str(r['streakID'])), streakLogTable))
+            r['streakLog'] = json.dumps(parse_reponse(streakLog, streakLogTable))
+        response = json.dumps(response)
     else:
         status_code = 404
         response = f"{userID} has no streaks"
@@ -67,13 +77,17 @@ def incrementStreak(event, context):
             .replace("-userID-", body['userID'])\
             .replace("-streakID-", body['streakID'])\
             .replace("-dateLastCompleted-", body['dateCompleted']), usersByStreakTable))
+        body['completionCount'] = execute_statement(format_query(getCurrentCompletionCountQuery\
+                    .replace("-streakID-", body['streakID']), usersByStreakTable))['records'][0][0]["longValue"]
         execute_statement(format_query(logStreakQuery, streakLogTable, body))
         status_code = 200
+        response = f"{body['streakID']} incrementated"
     return {
         "statusCode": status_code, 
         'headers': header,
-        "body": f"{body['streakID']} incrementated"
+        "body": response
         }  
+
 
 
 def unwrap(body):
@@ -131,6 +145,7 @@ streakLogTable = { 'table_name'   : 'streakLog',
                    'table_fields' : {
                                      'userID',
                                      'streakID', 
+                                     'completionCount',
 	                                 'dateCompleted'
                                     },
                     'int_fields'  : { 
@@ -143,13 +158,45 @@ streakLogTable = { 'table_name'   : 'streakLog',
                                     }
                 }
 
+friendStreak = {
+                'table_fields' : [
+                                    "userID",
+                                    "firstName",
+                                    "lastName",
+                                    "primaryColor",
+                                    "secondaryColor",
+                                    "completionCount"
+                                ]
+            }
+userReturn = {
+             'table_fields' : usersByStreakTable['table_fields'] | streaksTable['table_fields']
+}
+
 
 insertStreaksTableQuery = "INSERT INTO -DB-NAME-.-TABLE-NAME- (-VALUE-NAMES-) VALUES (-UPDATE-VALUES-)"
 insertStreaksbyUserTableQuery =  "INSERT INTO -DB-NAME-.-TABLE-NAME- (-VALUE-NAMES-) VALUES (-UPDATE-VALUES-)"
 getStreaksbyIDQuery = "SELECT * FROM -DB-NAME-.-TABLE-NAME- WHERE streakID = -streakID-".replace('*', ', '.join(streaksTable['table_fields']))
-getStreaksbyUserQuery = "SELECT * FROM -DB-NAME-.-TABLE-NAME- WHERE userID = '-userID-'".replace('*', ', '.join(usersByStreakTable['table_fields']))
+getStreaksbyUserQuery = "SELECT * FROM -DB-NAME-.-TABLE-NAME- NATURAL JOIN -DB-NAME-.streaks WHERE userID = '-userID-'".replace('*', ', '.join(userReturn['table_fields']))
+getStreakLogQuery = "SELECT * FROM -DB-NAME-.-TABLE-NAME- WHERE streakID = -streakID- LIMIT 7".replace('*', ', '.join(streakLogTable['table_fields']))
+getFriendStreaksQuery = ''' 
+                            SELECT 
+                                friendID as userID, 
+                                firstName, 
+                                lastName, 
+                                primaryColor, 
+                                secondaryColor,
+                                completionCount
+                            FROM -DB-NAME-.friends 
+                            INNER JOIN -DB-NAME-.streaks 
+                            ON friends.friendStreakID = streaks.streakID
+                            INNER JOIN -DB-NAME-.users 
+                            ON friends.friendID = users.userID
+                            INNER JOIN -DB-NAME-.usersByStreak
+                            ON friends.friendStreakID = usersByStreak.streakID
+                            WHERE friends.streakID = -streakID-'''
 incrementStreakQuery = "UPDATE -DB-NAME-.-TABLE-NAME- SET completionCount = IFNULL(completionCount, 0) + 1, dateLastCompleted = '-dateLastCompleted-' WHERE streakID = -streakID- AND userID = '-userID-'"
 logStreakQuery = "INSERT INTO -DB-NAME-.-TABLE-NAME- (-VALUE-NAMES-) VALUES (-UPDATE-VALUES-)"
+getCurrentCompletionCountQuery = "SELECT completionCount FROM -DB-NAME-.-TABLE-NAME- WHERE streakID = -streakID-"
 
 def execute_statement(sql):
     reponse = rds_client.execute_statement(

@@ -43,6 +43,7 @@ CREATE TABLE usersByStreak (
 CREATE TABLE streakLog(
     userID varchar(50) NOT NULL,
     streakID int NOT NULL, 
+    completionCount int,
     dateCompleted date,
     PRIMARY KEY (userID, streakID, dateCompleted),
 	FOREIGN KEY (userID) REFERENCES users (userID),
@@ -55,9 +56,13 @@ CREATE TABLE streakLog(
 CREATE TABLE friends(
     userID varchar(50) NOT NULL,
     friendID varchar(50) NOT NULL, 
-    PRIMARY KEY (userID, friendID),
+    streakID int NOT NULL, 
+    friendStreakID int NOT NULL, 
+    PRIMARY KEY (userID, friendID, friendStreakID),
 	FOREIGN KEY (userID) REFERENCES users (userID),
-	FOREIGN KEY (friendID) REFERENCES users (userID) 
+	FOREIGN KEY (friendID) REFERENCES users (userID), 
+    FOREIGN KEY (streakID) REFERENCES streaks (streakID),
+    FOREIGN KEY (friendStreakID) REFERENCES streaks (streakID) 
   	ON UPDATE CASCADE
   	ON DELETE CASCADE
 ) engine = innodb;
@@ -87,15 +92,14 @@ INSERT INTO usersByStreak VALUES
 
 -- streakLog
 INSERT INTO streakLog VALUES 
-("test@test.com", 1, DATE("2022-03-06")),
-("test@test.com", 2, DATE("2022-03-04")),
-("test@test.com", 2, DATE("2022-03-03")),
-("test@test.com", 2, DATE("2022-03-05")),
-("test@test.com", 2, DATE("2022-03-07")),
-("fake@test.com", 3, DATE("2022-03-07"));
+("test@test.com", 1, 1, DATE("2022-03-06")),
+("test@test.com", 2, 1, DATE("2022-03-04")),
+("test@test.com", 2, 2, DATE("2022-03-03")),
+("test@test.com", 2, 3, DATE("2022-03-05")),
+("test@test.com", 2, 4, DATE("2022-03-07")),
+("fake@test.com", 3, 1, DATE("2022-03-07"));
 
 -- friends
 INSERT INTO friends VALUES
-("test@test.com", "fake@test.com"),
-("fake@test.com", "test@test.com");
-
+("test@test.com", "fake@test.com", 2, 3),
+("fake@test.com", "test@test.com", 3, 2);

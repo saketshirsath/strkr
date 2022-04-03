@@ -49,6 +49,6 @@ functions:
   increment-streak:
     handler: scripts/streaks.incrementStreak
     events:
-      - http:
+      - http: 
           path: /increment-streak
           method: post
