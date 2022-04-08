@@ -167,33 +167,27 @@ export const isToday = date => {
   );
 };
 
-// https://elibe420n8.execute-api.us-east-1.amazonaws.com/dev/get-streak-by-user/{user}
-const fetchStreaksForUser = async userid => {
-  finalOutput = null;
-  await axios({
-    method: 'get',
-    url: `${baseUrl}/get-streak-by-user/${userid}`,
-  }).then(response => {
-    finalOutput = response.data;
-  });
-  console.log(finalOutput);
-  return finalOutput;
-};
-
 const App: () => Node = () => {
-  const updateHabit = (index, newHabit) => {
-    const newHabits = habits.slice();
-    if (index == -1) {
-      newHabits.push(newHabit);
+  const updateHabit = (index, newHabit, updateType) => {
+    console.log(updateType);
+    if (updateType != null && updateType == 'delete') {
+      let newHabits = habits.slice();
+      newHabits = newHabits.filter(h => h.streakID != newHabit.streakID);
       setHabits(newHabits);
-      return newHabit;
     } else {
-      newHabits[index].streakName = newHabit.streakName;
-      newHabits[index].primaryColor = newHabit.primaryColor;
-      newHabits[index].friends = newHabit.friends;
-      newHabits[index].dateLastCompleted = newHabit.dateLastCompleted;
-      setHabits(newHabits);
-      return newHabit[index];
+      const newHabits = habits.slice();
+      if (index == -1) {
+        newHabits.push(newHabit);
+        setHabits(newHabits);
+        return newHabit;
+      } else {
+        newHabits[index].streakName = newHabit.streakName;
+        newHabits[index].primaryColor = newHabit.primaryColor;
+        newHabits[index].friends = newHabit.friends;
+        newHabits[index].dateLastCompleted = newHabit.dateLastCompleted;
+        setHabits(newHabits);
+        return newHabit[index];
+      }
     }
 
     // TODO: send post with data
@@ -245,7 +239,7 @@ const App: () => Node = () => {
       url: `${baseUrl}/get-streak-by-user/${userid}`,
     }).then(response => {
       setHabits(response.data);
-      console.log(respone.data);
+      console.log(response.data);
     });
   }, []);
 

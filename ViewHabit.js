@@ -51,8 +51,8 @@ export const ViewHabit = ({route, navigation}) => {
     route.params.tappedHabit == null ? undefined : route.params.tappedHabit,
   );
 
-  const onHabitChange = (index, habit) => {
-    route.params.onHabitChange(index, habit);
+  const onHabitChange = (index, habit, updateType) => {
+    route.params.onHabitChange(index, habit, updateType);
     setHabit(habit);
     setAllowCompletion(
       habit.dateLastCompleted == null ||

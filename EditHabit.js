@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import {navigationRef} from './App';
 import {faCheck, faX} from '@fortawesome/free-solid-svg-icons';
+import {useNavigation} from '@react-navigation/native';
 
 export const colors = [
   '#001219',
@@ -181,52 +182,94 @@ export const EditHabit = ({route, navigation}) => {
 
   return (
     <SafeAreaView style={{flex: 1}}>
-      <TextInput
-        onChangeText={setHabitName}
-        placeholder={'Streak Name'}
-        style={styles.input}
-        value={habitName}></TextInput>
-      <HabitColorPicker
-        onChangeColor={onChangeColor}
-        colors={colors}
-        color={habitColor}></HabitColorPicker>
-      <View style={{marginTop: 10, alignItems: 'center'}}>
-        <TouchableOpacity
-          onPress={selectedInviteFriends}
+      <View style={{flex: 0.9}}>
+        <TextInput
+          onChangeText={setHabitName}
+          placeholder={'Streak Name'}
+          style={styles.input}
+          value={habitName}></TextInput>
+        <HabitColorPicker
+          onChangeColor={onChangeColor}
+          colors={colors}
+          color={habitColor}></HabitColorPicker>
+        <View
           style={{
-            backgroundColor: 'gray',
-            color: 'white',
-            padding: 12,
-            borderRadius: 20,
-            width: 150,
+            marginTop: 10,
+            alignItems: 'center',
           }}>
-          <Text
+          <TouchableOpacity
+            onPress={selectedInviteFriends}
             style={{
-              textAlign: 'center',
+              backgroundColor: 'gray',
               color: 'white',
+              padding: 12,
+              borderRadius: 20,
+              width: 150,
             }}>
-            Invite Friends
-          </Text>
-        </TouchableOpacity>
-        <View style={{marginTop: 15}}>
-          {friends == null || friends.length == 0
-            ? null
-            : friends.map(friend => (
-                <View style={{flexDirection: 'row'}}>
-                  <Text>
-                    {friend.firstName == null
-                      ? friend.userID
-                      : friend.firstName}
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => updateFriend(friend.userID, false)}>
-                    <FontAwesomeIcon
-                      color={'#d00000'}
-                      icon={faX}></FontAwesomeIcon>
-                  </TouchableOpacity>
-                </View>
-              ))}
+            <Text
+              style={{
+                textAlign: 'center',
+                color: 'white',
+              }}>
+              Invite Friends
+            </Text>
+          </TouchableOpacity>
+          <View style={{marginTop: 15}}>
+            {friends == null || friends.length == 0
+              ? null
+              : friends.map(friend => (
+                  <View style={{flexDirection: 'row'}}>
+                    <Text>
+                      {friend.firstName == null
+                        ? friend.userID
+                        : friend.firstName}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => updateFriend(friend.userID, false)}>
+                      <FontAwesomeIcon
+                        color={'#d00000'}
+                        icon={faX}></FontAwesomeIcon>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+          </View>
         </View>
+      </View>
+
+      <View
+        style={{
+          flex: 0.1,
+        }}>
+        {tappedHabit != null ? (
+          <TouchableOpacity
+            onPress={() => {
+              Alert.alert(
+                'Delete Streak',
+                'Are you sure you want to delete this streak?',
+                [
+                  {
+                    text: 'Cancel',
+                    style: 'cancel',
+                  },
+                  {
+                    text: 'OK',
+                    onPress: text => {
+                      onHabitChange(index, tappedHabit, 'delete');
+                      navigation.popToTop();
+                    },
+                  },
+                ],
+              );
+            }}
+            style={{
+              backgroundColor: '#AE2012',
+              color: 'white',
+              padding: 12,
+              alignItems: 'center',
+            }}>
+            <Text style={{color: 'white'}}>Delete Streak</Text>
+          </TouchableOpacity>
+        ) : null}
       </View>
     </SafeAreaView>
   );
