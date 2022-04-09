@@ -12,7 +12,9 @@ import {
 } from 'react-native';
 import {navigationRef} from './App';
 import {faCheck, faX} from '@fortawesome/free-solid-svg-icons';
-import {useNavigation} from '@react-navigation/native';
+import PushNotificationIOS from '@react-native-community/push-notification-ios';
+import PushNotification from 'react-native-push-notification';
+import {BtnGroup} from './BtnGroup';
 
 export const colors = [
   '#001219',
@@ -78,6 +80,7 @@ export const HabitColorPicker = ({colors, color, onChangeColor}) => {
 export const EditHabit = ({route, navigation}) => {
   const tappedHabit = route.params.tappedHabit;
   const index = route.params.index;
+  let date = null;
   console.log(route.params);
   const onHabitChange = route.params.onHabitChange;
   const [habitName, setHabitName] = useState(
@@ -113,13 +116,16 @@ export const EditHabit = ({route, navigation}) => {
   const updateHabit = () => {
     const streak = tappedHabit == null ? 7 : tappedHabit.completionCount;
     const ownerName = tappedHabit == null ? null : tappedHabit.firstName;
+    let newHabit = null;
     if (tappedHabit == null) {
-      const newHabit = {
+      newHabit = {
         completionCount: 1,
         streakName: habitName,
         primaryColor: habitColor,
         frequencySetting: 1,
         secondaryColor: habitColor,
+        streakID: Math.floor(Math.random() * 1000000) + 1,
+        reminderDate: date,
       };
       onHabitChange(-1, newHabit);
     } else {
@@ -131,7 +137,20 @@ export const EditHabit = ({route, navigation}) => {
       if (ownerName != null) {
         clone.firstName = ownerName;
       }
+      clone.reminderDate = date;
+      newHabit = clone;
       onHabitChange(index, clone);
+    }
+
+    PushNotification.cancelLocalNotification(newHabit.streakID);
+    if (newHabit.reminderDate != null) {
+      PushNotification.localNotificationSchedule({
+        id: newHabit.streakID,
+        message: 'Complete ' + newHabit.streakName + ' for today!',
+        date: newHabit.reminderDate,
+        repeatType: 'day',
+        category: 'userAction',
+      });
     }
   };
 
@@ -172,12 +191,15 @@ export const EditHabit = ({route, navigation}) => {
         {
           text: 'OK',
           onPress: text => {
-            console.log('called');
             updateFriend(text, true);
           },
         },
       ],
     );
+  };
+
+  const onChangeDate = newDate => {
+    date = newDate;
   };
 
   return (
@@ -234,6 +256,7 @@ export const EditHabit = ({route, navigation}) => {
                 ))}
           </View>
         </View>
+        <BtnGroup onChangeDate={onChangeDate}></BtnGroup>
       </View>
 
       <View

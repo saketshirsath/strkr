@@ -24,6 +24,60 @@ import axios from 'axios';
 const baseUrl = 'https://elibe420n8.execute-api.us-east-1.amazonaws.com/dev';
 export const navigationRef = createRef();
 
+import PushNotificationIOS from '@react-native-community/push-notification-ios';
+import PushNotification from 'react-native-push-notification';
+
+// Must be outside of any component LifeCycle (such as `componentDidMount`).
+PushNotification.configure({
+  // (optional) Called when Token is generated (iOS and Android)
+  onRegister: function (token) {
+    console.log('TOKEN:', token);
+  },
+
+  // (required) Called when a remote is received or opened, or local notification is opened
+  onNotification: function (notification) {
+    console.log('NOTIFICATION:', notification);
+
+    // process the notification
+
+    // (required) Called when a remote is received or opened, or local notification is opened
+    notification.finish(PushNotificationIOS.FetchResult.NoData);
+  },
+
+  // (optional) Called when Registered Action is pressed and invokeApp is false, if true onNotification will be called (Android)
+  onAction: function (notification) {
+    console.log('ACTION:', notification.action);
+    console.log('NOTIFICATION:', notification);
+
+    // process the action
+  },
+
+  // (optional) Called when the user fails to register for remote notifications. Typically occurs when APNS is having issues, or the device is a simulator. (iOS)
+  onRegistrationError: function (err) {
+    console.error(err.message, err);
+  },
+
+  // IOS ONLY (optional): default: all - Permissions to register.
+  permissions: {
+    alert: true,
+    badge: true,
+    sound: true,
+  },
+
+  // Should the initial notification be popped automatically
+  // default: true
+  popInitialNotification: true,
+
+  /**
+   * (optional) default: true
+   * - Specified if permissions (ios) and token (android and ios) will requested or not,
+   * - if not, you must call PushNotificationsHandler.requestPermissions() later
+   * - if you are not using remote notification or do not have Firebase installed, use this:
+   *     requestPermissions: Platform.OS === 'ios'
+   */
+  requestPermissions: true,
+});
+
 const dummyData = [
   {
     streakID: 1,
@@ -134,29 +188,6 @@ const dummyData = [
     ],
   },
 ];
-// "streakID"
-// "completionCount"
-// "dateLastCompleted":
-// "streakName"
-// "primaryColor"
-// "frequencySetting":
-// "secondaryColor":
-// "isGroupStreak":
-// "friends" : [
-// K
-// "userID"
-// "firstName"
-// "lastName"
-// "primaryColor"
-// "secondaryColor"
-// "completionCount":
-// ] # optional if isGroupStreak
-// == 1
-// "streakLog" : [
-// "dateCompleted"
-// "completionCount"
-// ] # max len == 7
-// 7
 
 export const isToday = date => {
   const today = new Date();
@@ -169,10 +200,10 @@ export const isToday = date => {
 
 const App: () => Node = () => {
   const updateHabit = (index, newHabit, updateType) => {
-    console.log(updateType);
     if (updateType != null && updateType == 'delete') {
       let newHabits = habits.slice();
       newHabits = newHabits.filter(h => h.streakID != newHabit.streakID);
+      PushNotification.cancelLocalNotification(h.streakID);
       setHabits(newHabits);
     } else {
       const newHabits = habits.slice();
@@ -191,6 +222,17 @@ const App: () => Node = () => {
     }
 
     // TODO: send post with data
+  };
+
+  const setNotificationCategories = () => {
+    PushNotificationIOS.setNotificationCategories([
+      {
+        id: 'userAction',
+        actions: [
+          {id: 'complete', title: 'Mark Complete', options: {foreground: true}},
+        ],
+      },
+    ]);
   };
 
   const onTapHabit = (index, tappedHabit) => {
@@ -226,7 +268,7 @@ const App: () => Node = () => {
     return pressedHabit;
   };
 
-  const [habits, setHabits] = useState(dummyData);
+  const [habits, setHabits] = useState([]);
   const [isLoggedIn, setLoggedIn] = useState(true);
 
   const HabitStack = createNativeStackNavigator();
@@ -242,6 +284,32 @@ const App: () => Node = () => {
       console.log(response.data);
     });
   }, []);
+
+  const type = 'localNotification';
+  PushNotificationIOS.addEventListener(type, onRemoteNotification);
+
+  function onRemoteNotification(notification) {
+    const actionIdentifier = notification.getActionIdentifier();
+
+    // TODO: mark as completed will increment everything
+    console.log('Handling notification within app');
+    console.log(notification);
+    if (actionIdentifier == 'complete') {
+      const notifStreakMessage = notification.getMessage();
+      const newHabits = habits.slice();
+      console.log(habits.count);
+
+      for (let i = 0; i < habits.length; i++) {
+        console.log(habits[i].streakName);
+        if (notifStreakMessage.includes(habits[i].streakName)) {
+          console.log('Incremented count');
+          newHabits[i].completionCount += 1;
+          updateHabit(i, newHabits[i]);
+          navigationRef.current.goBack();
+        }
+      }
+    }
+  }
 
   const appComp = (
     <NavigationContainer ref={navigationRef}>
@@ -296,6 +364,8 @@ const App: () => Node = () => {
       disableDivider
       haveAccountText={''}></LoginScreen>
   );
+
+  setNotificationCategories();
 
   return isLoggedIn ? appComp : logInComp;
 };
