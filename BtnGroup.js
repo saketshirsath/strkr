@@ -9,20 +9,41 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 // https://stackoverflow.com/questions/62621522/create-button-group-in-react-native-using-react-components
-export const BtnGroup = ({onChangeDate}) => {
-  const [selection, setSelection] = useState(1);
-  const [date, setDate] = useState(new Date());
-
-  const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate;
-    setDate(currentDate);
-    if (onChangeDate) {
-      onChangeDate(currentDate);
-    }
+export const BtnGroup = ({onChangeDate, date}) => {
+  const betweenRange = (start, end) => {
+    if (date == null) return false;
+    return date.getHours() >= start && date.getHours() <= end;
   };
 
-  const betweenRange = (start, end) => {
-    return date.getHours() >= start && date.getHours() <= end;
+  const [selection, setSelection] = useState(
+    betweenRange(0, 11)
+      ? 2
+      : betweenRange(12, 17)
+      ? 3
+      : betweenRange(18, 23)
+      ? 4
+      : 1,
+  );
+
+  const onChange = selectedDate => {
+    const currentDate = selectedDate;
+    if (onChangeDate) {
+      if (currentDate == null) {
+        onChangeDate(null);
+      } else {
+        var hours = '0' + currentDate.getHours();
+        var minutes = '0' + currentDate.getMinutes();
+        var seconds = '0' + currentDate.getSeconds();
+        var formattedTime =
+          hours.substr(-2) +
+          ':' +
+          minutes.substr(-2) +
+          ':' +
+          seconds.substr(-2);
+
+        onChangeDate(formattedTime);
+      }
+    }
   };
 
   return (
@@ -38,7 +59,7 @@ export const BtnGroup = ({onChangeDate}) => {
           ]}
           onPress={() => {
             setSelection(1);
-            onChangeDate(null);
+            onChange(null);
           }}>
           <Text
             style={[styles.btnText, selection === 1 ? {color: 'white'} : null]}>
@@ -56,8 +77,7 @@ export const BtnGroup = ({onChangeDate}) => {
             setSelection(2);
             const newDate = new Date();
             newDate.setHours(9, 0, 0);
-            setDate(newDate);
-            onChangeDate(newDate);
+            onChange(newDate);
           }}>
           <Text
             style={[
@@ -78,8 +98,7 @@ export const BtnGroup = ({onChangeDate}) => {
             setSelection(3);
             const newDate = new Date();
             newDate.setHours(12, 0, 0);
-            setDate(newDate);
-            onChangeDate(newDate);
+            onChange(newDate);
           }}>
           <Text
             style={[
@@ -100,8 +119,7 @@ export const BtnGroup = ({onChangeDate}) => {
             setSelection(4);
             const newDate = new Date();
             newDate.setHours(18, 0, 0);
-            setDate(newDate);
-            onChangeDate(newDate);
+            onChange(newDate);
           }}>
           <Text
             style={[
@@ -112,7 +130,7 @@ export const BtnGroup = ({onChangeDate}) => {
           </Text>
         </TouchableOpacity>
       </View>
-      {selection == 1 ? null : (
+      {selection == 1 || date == null ? null : (
         <View
           style={{
             flexDirection: 'row',

@@ -294,24 +294,26 @@ const App: () => Node = () => {
       newHabits[index].primaryColor = newHabit.primaryColor;
       newHabits[index].friends = newHabit.friends;
       newHabits[index].dateLastCompleted = newHabit.dateLastCompleted;
-
-      axios
-        .post(baseUrl + '/edit-streak', {
-          userID: 'test@test.com',
-          streakID: '1',
-          streakName: 'Study 101',
-          dateLastCompleted: '2022-01-02',
-          completionCount: 2,
-          frequencySetting: 1,
-          primaryColor: '#333333',
-          secondaryColor: '#0A9396',
-          isGroupStreak: 0,
-          reminderTime: '16:40:00',
-          isBreakingHabit: 0,
-        })
-        .then(response => {
-          console.log(response);
-        });
+      (newHabits[index].reminderTime =
+        newHabit.reminderTime == null ? '00:00:00' : newHabit.reminderTime),
+        console.log(newHabit.reminderTime);
+      const updateObject = {
+        userID: userid,
+        streakID: newHabit.streakID,
+        streakName: newHabit.streakName,
+        dateLastCompleted: '2022-01-02',
+        completionCount: 2,
+        frequencySetting: 1,
+        primaryColor: newHabit.primaryColor,
+        secondaryColor: newHabit.secondaryColor,
+        isGroupStreak: newHabit.isGroupStreak,
+        reminderTime: newHabit.reminderTime,
+        isBreakingHabit: newHabit.isBreakingHabit,
+      };
+      console.log(updateObject);
+      axios.post(baseUrl + '/edit-streak', updateObject).then(response => {
+        console.log(response);
+      });
 
       setHabits(newHabits);
       return newHabit;

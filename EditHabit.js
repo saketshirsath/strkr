@@ -77,10 +77,26 @@ export const HabitColorPicker = ({colors, color, onChangeColor}) => {
   );
 };
 
+const convertTimeToDate = time => {
+  let newDateObject = new Date();
+  let [hours, minutes, seconds] =
+    time != null ? time.split(':') : '9:00:00'.split(':');
+  newDateObject.setHours(hours);
+  newDateObject.setMinutes(minutes);
+  newDateObject.setSeconds(seconds);
+  return newDateObject;
+};
+
 export const EditHabit = ({route, navigation}) => {
   const tappedHabit = route.params.tappedHabit;
   const index = route.params.index;
-  let date = null;
+  const [date, setDate] = useState(
+    tappedHabit == null ? null : tappedHabit.reminderTime,
+  );
+  const [dateObject, setDateObject] = useState(
+    convertTimeToDate(tappedHabit != null ? tappedHabit.reminderTime : null),
+  );
+
   console.log(route.params);
   const onHabitChange = route.params.onHabitChange;
   const [habitName, setHabitName] = useState(
@@ -150,7 +166,7 @@ export const EditHabit = ({route, navigation}) => {
       PushNotification.localNotificationSchedule({
         id: newHabit.streakID,
         message: 'Complete ' + newHabit.streakName + ' for today!',
-        date: newHabit.reminderTime,
+        date: convertTimeToDate(newHabit.reminderTime),
         repeatType: 'day',
         category: 'userAction',
       });
@@ -202,9 +218,12 @@ export const EditHabit = ({route, navigation}) => {
   };
 
   const onChangeDate = newDate => {
-    date = newDate;
-  };
+    console.log('changed date');
+    console.log(newDate);
+    setDate(newDate);
 
+    setDateObject(convertTimeToDate(newDate));
+  };
   return (
     <SafeAreaView style={{flex: 1}}>
       <View style={{flex: 0.9}}>
@@ -259,7 +278,9 @@ export const EditHabit = ({route, navigation}) => {
                 ))}
           </View>
         </View>
-        <BtnGroup onChangeDate={onChangeDate}></BtnGroup>
+        <BtnGroup
+          date={date == null ? null : dateObject}
+          onChangeDate={onChangeDate}></BtnGroup>
       </View>
 
       <View
