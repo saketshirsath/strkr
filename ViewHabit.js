@@ -5,9 +5,15 @@ import {
   TouchableOpacity,
   Text,
   SafeAreaView,
+  Image,
+  Dimensions,
 } from 'react-native';
 import {BarChart, LineChart} from 'react-native-chart-kit';
 import {isToday} from './App';
+
+const ad = require('./amazon.jpg');
+
+// import {ad} from './audiobooks.jpg';
 
 export const HabitGraph = ({habit, width, height}) => {
   const data = {
@@ -142,6 +148,11 @@ export const ViewHabit = ({route, navigation}) => {
               {allowCompletion ? 'Complete for Today' : 'Undo Completion'}
             </Text>
           </TouchableOpacity>
+          <View style={{width: Dimensions.get('window').width}}>
+            <Image
+              source={ad}
+              style={{width: Dimensions.get('window').width}}></Image>
+          </View>
         </View>
       )}
     </SafeAreaView>

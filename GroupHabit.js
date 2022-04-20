@@ -14,11 +14,15 @@ export const GroupHabit = ({route, navigation}) => {
     if (returnedHabit != null) {
       setHabit(returnedHabit);
     }
+    return returnedHabit;
   };
 
   const onLongPressHabit = (index, pressedHabit) => {
     let newHabit = {...pressedHabit};
-    setHabit(route.params.onLongPressHabit(index, newHabit));
+    const returnedHabit = route.params.onLongPressHabit(index, newHabit);
+    console.log('returnedHabit in onLongPressHabit');
+    console.log(returnedHabit);
+    setHabit(returnedHabit);
   };
 
   const onTapHabit = (index, tappedHabit) => {
@@ -50,7 +54,7 @@ export const GroupHabit = ({route, navigation}) => {
 
   return (
     <AnimatedCircleGroup
-      habits={[habit.friends, habit].flat()}
+      habits={[habit.friends == null ? [] : habit.friends, habit].flat()}
       isGroup
       onTapHabit={onTapHabit}
       onLongPressHabit={onLongPressHabit}

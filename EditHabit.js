@@ -104,7 +104,7 @@ export const EditHabit = ({route, navigation}) => {
     headerRight: () => (
       <TouchableOpacity
         onPress={() => {
-          navigation.popToTop();
+          navigationRef.current.goBack();
 
           updateHabit();
         }}>

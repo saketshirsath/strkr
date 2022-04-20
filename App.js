@@ -22,6 +22,9 @@ import LoginScreen from 'react-native-login-screen';
 import axios from 'axios';
 
 const baseUrl = 'https://elibe420n8.execute-api.us-east-1.amazonaws.com/dev';
+const authBaseUrl =
+  'https://elibe420n8.execute-api.us-east-1.amazonaws.com/dev';
+
 export const navigationRef = createRef();
 
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
@@ -251,24 +254,29 @@ Undo Competion:
 const App: () => Node = () => {
   const updateHabit = (index, newHabit, updateType) => {
     const newHabits = habits.slice();
+    for (let i = 0; i < habits.length; i++) {
+      if (newHabits[i].streakID == newHabit.streakID) {
+        index = i;
+      }
+    }
 
     if (updateType != null && updateType == 'create') {
       newHabits.push(newHabit);
       setHabits(newHabits);
 
-      axios({
-        method: 'post',
-        url: `${baseUrl}/new-streak`,
-        streakName: newHabit.streakName,
-        createDate: newHabit.createDate,
-        frequencySetting: 1,
-        primaryColor: newHabit.primaryColor,
-        secondaryColor: newHabit.secondaryColor,
-        isGroupStreak: newHabit.isGroupStreak,
-        reminderTime: newHabit.reminderTime,
-      }).then(response => {
-        console.log(response);
-      });
+      axios
+        .post(baseUrl + '/new-streak', {
+          streakName: newHabit.streakName,
+          createDate: newHabit.createDate,
+          frequencySetting: 1,
+          primaryColor: newHabit.primaryColor,
+          secondaryColor: newHabit.secondaryColor,
+          isGroupStreak: newHabit.isGroupStreak,
+          reminderTime: newHabit.reminderTime,
+        })
+        .then(response => {
+          console.log(response);
+        });
 
       // TODO: send new habit, like later
 
@@ -288,38 +296,45 @@ const App: () => Node = () => {
       newHabits[index].dateLastCompleted = newHabit.dateLastCompleted;
 
       axios
-        .post({
-          method: 'post',
-          url: `${baseUrl}/edit-streak`,
-          userID: userid,
-          streakID: newHabit.streakID,
-          streakName: newHabit.streakName,
-          dateLastCompleted: newHabit.dateLastCompleted,
-          completionCount: newHabit.completionCount,
+        .post(baseUrl + '/edit-streak', {
+          userID: 'test@test.com',
+          streakID: '1',
+          streakName: 'Study 101',
+          dateLastCompleted: '2022-01-02',
+          completionCount: 2,
           frequencySetting: 1,
-          primaryColor: newHabit.primaryColor,
-          secondaryColor: newHabit.secondaryColor,
-          isGroupStreak: newHabit.isGroupStreak,
-          reminderTime: newHabit.reminderTime,
-          isBreakingHabit: newHabit.isBreakingHabit,
+          primaryColor: '#333333',
+          secondaryColor: '#0A9396',
+          isGroupStreak: 0,
+          reminderTime: '16:40:00',
+          isBreakingHabit: 0,
         })
         .then(response => {
           console.log(response);
         });
 
       setHabits(newHabits);
-      return newHabits[index];
+      return newHabit;
     } else if (updateType != null && updateType == 'increment') {
-      newHabits[index].completionCount += newHabit.isBreakingHabit ? -1 : 1;
-      newHabits[index].dateLastCompleted = new Date().toISOString();
+      newHabit.completionCount += newHabit.isBreakingHabit ? -1 : 1;
+      newHabit.dateLastCompleted = new Date().toISOString();
+      newHabits[index].completionCount = newHabit.completionCount;
+      newHabits[index].dateLastCompleted = newHabit.dateLastCompleted;
       setHabits(newHabits);
+      console.log('sending back after incrrement App.js');
+      console.log('initial');
+      console.log(newHabit);
+      console.log('updated to');
+      console.log(newHabit);
 
-      return newHabits[index];
+      return newHabit;
     } else if (updateType != null && updateType == 'undo') {
-      newHabits[index].completionCount += newHabit.isBreakingHabit ? 1 : -1;
-      newHabits[index].dateLastCompleted = null;
+      newHabit.completionCount += newHabit.isBreakingHabit ? 1 : -1;
+      newHabit.dateLastCompleted = null;
+      newHabits[index].completionCount = newHabit.completionCount;
+      newHabits[index].dateLastCompleted = newHabit.dateLastCompleted;
       setHabits(newHabits);
-      return newHabits[index];
+      return newHabit;
     }
   };
 
@@ -361,8 +376,7 @@ const App: () => Node = () => {
       return pressedHabit;
     }
 
-    updateHabit(index, pressedHabit, 'increment');
-    return pressedHabit;
+    return updateHabit(index, pressedHabit, 'increment');
   };
 
   const [habits, setHabits] = useState([]);
