@@ -104,7 +104,7 @@ export const EditHabit = ({route, navigation}) => {
     headerRight: () => (
       <TouchableOpacity
         onPress={() => {
-          navigationRef.current.goBack();
+          navigation.popToTop();
 
           updateHabit();
         }}>
@@ -120,34 +120,37 @@ export const EditHabit = ({route, navigation}) => {
     if (tappedHabit == null) {
       newHabit = {
         completionCount: 1,
+        createDate: new Date().toISOString(),
         streakName: habitName,
         primaryColor: habitColor,
         frequencySetting: 1,
         secondaryColor: habitColor,
         streakID: Math.floor(Math.random() * 1000000) + 1,
-        reminderDate: date,
+        reminderTime: date,
       };
-      onHabitChange(-1, newHabit);
+      onHabitChange(-1, newHabit, 'create');
     } else {
       const clone = JSON.parse(JSON.stringify(tappedHabit));
       clone.streakName = habitName;
       clone.completionCount = streak;
+      // TODO: separate friends into delete and add lists!
       clone.friends = friends;
       clone.primaryColor = habitColor;
+      clone.secondaryColor = habitColor;
       if (ownerName != null) {
         clone.firstName = ownerName;
       }
-      clone.reminderDate = date;
+      clone.reminderTime = date;
       newHabit = clone;
-      onHabitChange(index, clone);
+      onHabitChange(index, clone, 'edit');
     }
 
     PushNotification.cancelLocalNotification(newHabit.streakID);
-    if (newHabit.reminderDate != null) {
+    if (newHabit.reminderTime != null) {
       PushNotification.localNotificationSchedule({
         id: newHabit.streakID,
         message: 'Complete ' + newHabit.streakName + ' for today!',
-        date: newHabit.reminderDate,
+        date: newHabit.reminderTime,
         repeatType: 'day',
         category: 'userAction',
       });

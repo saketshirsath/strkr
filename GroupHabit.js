@@ -1,11 +1,5 @@
 import React, {useCallback, useState} from 'react';
-import {
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  Text,
-  SafeAreaView,
-} from 'react-native';
+import {TouchableOpacity, Text} from 'react-native';
 import {BarChart, LineChart} from 'react-native-chart-kit';
 import {AnimatedCircleGroup} from './Bubbles/Circle';
 import {navigationRef} from './App';
@@ -16,8 +10,10 @@ export const GroupHabit = ({route, navigation}) => {
   );
 
   const onHabitChange = (index, habit, updateType) => {
-    route.params.onHabitChange(index, habit, updateType);
-    setHabit(habit);
+    const returnedHabit = route.params.onHabitChange(index, habit, updateType);
+    if (returnedHabit != null) {
+      setHabit(returnedHabit);
+    }
   };
 
   const onLongPressHabit = (index, pressedHabit) => {
@@ -34,7 +30,7 @@ export const GroupHabit = ({route, navigation}) => {
   };
 
   navigation.setOptions({
-    title: habit.streakName,
+    title: habit != null && habit.streakName,
     headerRight: () => (
       <TouchableOpacity
         onPress={() => {

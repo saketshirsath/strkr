@@ -198,30 +198,129 @@ export const isToday = date => {
   );
 };
 
+const userid = 'test@test.com';
+
+/*
+Create a new streak:
+https://elibe420n8.execute-api.us-east-1.amazonaws.com/dev/new-streak
+	{
+		"streakName": "Study",
+		"createDate": "2022-04-19",
+		"frequencySetting": 1,
+		"primaryColor": "#0A9396",
+		"secondaryColor": "#0A9396",
+		"isGroupStreak": 0,
+		"userID": "test@test.com",
+		"isBreakingHabit": 0,
+		"reminderTime": "16:40:00"
+}
+
+Edit Streak:
+https://elibe420n8.execute-api.us-east-1.amazonaws.com/dev/edit-streak  
+{
+		"streakID": 1,
+		"streakName": "Study 2",
+		"createDate": "2022-04-19",
+		"frequencySetting": 1,
+		"primaryColor": "#0A9396",
+		"secondaryColor": "#0A9396",
+		"isGroupStreak": 0,
+		"completionCount": 10,
+		"userID": "test@test.com",
+		"isBreakingHabit": 0,
+		"reminderTime": "16:40:00"
+}
+
+Get Streaks:
+https://elibe420n8.execute-api.us-east-1.amazonaws.com/dev/get-streak-by-user/test@test.com
+
+Update streak:
+https://elibe420n8.execute-api.us-east-1.amazonaws.com/dev/increment-streak  
+{
+	"streakID": 1,
+	"dateCompleted": "2022-04-19",
+	"userID": "test@test.com",
+}
+
+Delete Streak:
+
+Undo Competion:
+
+*/
+
 const App: () => Node = () => {
   const updateHabit = (index, newHabit, updateType) => {
-    if (updateType != null && updateType == 'delete') {
+    const newHabits = habits.slice();
+
+    if (updateType != null && updateType == 'create') {
+      newHabits.push(newHabit);
+      setHabits(newHabits);
+
+      axios({
+        method: 'post',
+        url: `${baseUrl}/new-streak`,
+        streakName: newHabit.streakName,
+        createDate: newHabit.createDate,
+        frequencySetting: 1,
+        primaryColor: newHabit.primaryColor,
+        secondaryColor: newHabit.secondaryColor,
+        isGroupStreak: newHabit.isGroupStreak,
+        reminderTime: newHabit.reminderTime,
+      }).then(response => {
+        console.log(response);
+      });
+
+      // TODO: send new habit, like later
+
+      return newHabit;
+    } else if (updateType != null && updateType == 'delete') {
       let newHabits = habits.slice();
       newHabits = newHabits.filter(h => h.streakID != newHabit.streakID);
-      PushNotification.cancelLocalNotification(h.streakID);
-      setHabits(newHabits);
-    } else {
-      const newHabits = habits.slice();
-      if (index == -1) {
-        newHabits.push(newHabit);
-        setHabits(newHabits);
-        return newHabit;
-      } else {
-        newHabits[index].streakName = newHabit.streakName;
-        newHabits[index].primaryColor = newHabit.primaryColor;
-        newHabits[index].friends = newHabit.friends;
-        newHabits[index].dateLastCompleted = newHabit.dateLastCompleted;
-        setHabits(newHabits);
-        return newHabit[index];
-      }
-    }
+      PushNotification.cancelLocalNotification(newHabit.streakID);
 
-    // TODO: send post with data
+      // TODO: send delete habit
+
+      setHabits(newHabits);
+    } else if (updateType != null && updateType == 'edit') {
+      newHabits[index].streakName = newHabit.streakName;
+      newHabits[index].primaryColor = newHabit.primaryColor;
+      newHabits[index].friends = newHabit.friends;
+      newHabits[index].dateLastCompleted = newHabit.dateLastCompleted;
+
+      axios
+        .post({
+          method: 'post',
+          url: `${baseUrl}/edit-streak`,
+          userID: userid,
+          streakID: newHabit.streakID,
+          streakName: newHabit.streakName,
+          dateLastCompleted: newHabit.dateLastCompleted,
+          completionCount: newHabit.completionCount,
+          frequencySetting: 1,
+          primaryColor: newHabit.primaryColor,
+          secondaryColor: newHabit.secondaryColor,
+          isGroupStreak: newHabit.isGroupStreak,
+          reminderTime: newHabit.reminderTime,
+          isBreakingHabit: newHabit.isBreakingHabit,
+        })
+        .then(response => {
+          console.log(response);
+        });
+
+      setHabits(newHabits);
+      return newHabits[index];
+    } else if (updateType != null && updateType == 'increment') {
+      newHabits[index].completionCount += newHabit.isBreakingHabit ? -1 : 1;
+      newHabits[index].dateLastCompleted = new Date().toISOString();
+      setHabits(newHabits);
+
+      return newHabits[index];
+    } else if (updateType != null && updateType == 'undo') {
+      newHabits[index].completionCount += newHabit.isBreakingHabit ? 1 : -1;
+      newHabits[index].dateLastCompleted = null;
+      setHabits(newHabits);
+      return newHabits[index];
+    }
   };
 
   const setNotificationCategories = () => {
@@ -262,9 +361,7 @@ const App: () => Node = () => {
       return pressedHabit;
     }
 
-    pressedHabit.completionCount += 1;
-    pressedHabit.dateLastCompleted = new Date().toISOString();
-    updateHabit(index, pressedHabit);
+    updateHabit(index, pressedHabit, 'increment');
     return pressedHabit;
   };
 
@@ -275,7 +372,6 @@ const App: () => Node = () => {
 
   // Fetch all streaks for the user only once
   React.useEffect(() => {
-    const userid = 'test@test.com';
     axios({
       method: 'get',
       url: `${baseUrl}/get-streak-by-user/${userid}`,
@@ -304,7 +400,7 @@ const App: () => Node = () => {
         if (notifStreakMessage.includes(habits[i].streakName)) {
           console.log('Incremented count');
           newHabits[i].completionCount += 1;
-          updateHabit(i, newHabits[i]);
+          updateHabit(i, newHabits[i], 'increment');
           navigationRef.current.goBack();
         }
       }

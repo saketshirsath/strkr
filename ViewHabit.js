@@ -52,21 +52,24 @@ export const ViewHabit = ({route, navigation}) => {
   );
 
   const onHabitChange = (index, habit, updateType) => {
-    route.params.onHabitChange(index, habit, updateType);
-    setHabit(habit);
-    setAllowCompletion(
-      habit.dateLastCompleted == null ||
-        !isToday(new Date(habit.dateLastCompleted)),
-    );
+    const returnValue = route.params.onHabitChange(index, habit, updateType);
+    if (returnValue != null) {
+      setHabit(returnValue);
+      setAllowCompletion(
+        returnValue.dateLastCompleted == null ||
+          !isToday(new Date(returnValue.dateLastCompleted)),
+      );
+    }
   };
 
   const [allowCompletion, setAllowCompletion] = useState(
-    habit.dateLastCompleted == null ||
-      !isToday(new Date(habit.dateLastCompleted)),
+    habit != null &&
+      (habit.dateLastCompleted == null ||
+        !isToday(new Date(habit.dateLastCompleted))),
   );
 
   navigation.setOptions({
-    title: habit.streakName,
+    title: habit != null ? habit.streakName : '',
     headerRight: () => (
       <TouchableOpacity
         onPress={() => {
@@ -90,9 +93,11 @@ export const ViewHabit = ({route, navigation}) => {
   const isCanvasReady = viewDimensions !== undefined;
 
   let lastCompDate =
-    habit.dateLastCompleted != null ? habit.dateLastCompleted : 'Never';
+    habit != null && habit.dateLastCompleted != null
+      ? habit.dateLastCompleted
+      : 'Never';
 
-  return (
+  return habit == null ? null : (
     <SafeAreaView style={{flex: 1}} onLayout={handleLayout}>
       {isCanvasReady && (
         <View
@@ -119,12 +124,11 @@ export const ViewHabit = ({route, navigation}) => {
               console.log(isCanvasReady);
               let newHabit = {...habit};
 
-              newHabit.completionCount += allowCompletion ? 1 : -1;
-              newHabit.dateLastCompleted = allowCompletion
-                ? new Date().toISOString()
-                : null;
-
-              onHabitChange(route.params.index, newHabit);
+              if (allowCompletion) {
+                onHabitChange(route.params.index, newHabit, 'increment');
+              } else {
+                onHabitChange(route.params.index, newHabit, 'undo');
+              }
             }}
             style={{
               justifyContent: 'flex-end',

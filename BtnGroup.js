@@ -124,6 +124,7 @@ export const BtnGroup = ({onChangeDate}) => {
             mode={'time'}
             onChange={onChange}
             style={{width: 100, height: 50}}
+            themeVariant="light"
           />
           <Text style={{padding: 5}}>Everyday</Text>
         </View>
