@@ -20,6 +20,8 @@ import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {GroupHabit} from './GroupHabit';
 import LoginScreen from 'react-native-login-screen';
 import axios from 'axios';
+const bg = require('./bg.png');
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const baseUrl = 'https://elibe420n8.execute-api.us-east-1.amazonaws.com/dev';
 const authBaseUrl =
@@ -29,6 +31,9 @@ export const navigationRef = createRef();
 
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import PushNotification from 'react-native-push-notification';
+
+email = '';
+password = '';
 
 // Must be outside of any component LifeCycle (such as `componentDidMount`).
 PushNotification.configure({
@@ -193,15 +198,8 @@ const dummyData = [
 ];
 
 export const isToday = date => {
-  const today = new Date();
-  return (
-    date.getDate() == today.getDate() &&
-    date.getMonth() == today.getMonth() &&
-    date.getFullYear() == today.getFullYear()
-  );
+  return date == new Date().toISOString().split('T')[0];
 };
-
-const userid = 'test@test.com';
 
 /*
 Create a new streak:
@@ -246,8 +244,10 @@ https://elibe420n8.execute-api.us-east-1.amazonaws.com/dev/increment-streak
 }
 
 Delete Streak:
+https://elibe420n8.execute-api.us-east-1.amazonaws.com/dev/delete-streak/{id}
 
 Undo Competion:
+https://elibe420n8.execute-api.us-east-1.amazonaws.com/dev/undo-update-streak
 
 */
 
@@ -264,19 +264,23 @@ const App: () => Node = () => {
       newHabits.push(newHabit);
       setHabits(newHabits);
 
-      axios
-        .post(baseUrl + '/new-streak', {
-          streakName: newHabit.streakName,
-          createDate: newHabit.createDate,
-          frequencySetting: 1,
-          primaryColor: newHabit.primaryColor,
-          secondaryColor: newHabit.secondaryColor,
-          isGroupStreak: newHabit.isGroupStreak,
-          reminderTime: newHabit.reminderTime,
-        })
-        .then(response => {
-          console.log(response);
-        });
+      console.log(baseUrl + '/new-streak');
+      const pushRequest = {
+        userID: email,
+        streakName: newHabit.streakName,
+        createDate: newHabit.createDate.split('T')[0],
+        frequencySetting: 1,
+        primaryColor: newHabit.primaryColor,
+        secondaryColor: newHabit.secondaryColor,
+        reminderTime:
+          newHabit.reminderTime == null ? '00:00:00' : newHabit.reminderTime,
+        isBreakingHabit: newHabit.isBreakingHabit ? 1 : 0,
+        isGroupStreak: newHabit.isGroupStreak ? 1 : 0,
+      };
+      console.log(pushRequest);
+      axios.post(baseUrl + '/new-streak', pushRequest).then(response => {
+        console.log(response);
+      });
 
       // TODO: send new habit, like later
 
@@ -286,30 +290,41 @@ const App: () => Node = () => {
       newHabits = newHabits.filter(h => h.streakID != newHabit.streakID);
       PushNotification.cancelLocalNotification(newHabit.streakID);
 
-      // TODO: send delete habit
+      console.log('streakid: ' + newHabit.streakID);
+      console.log(baseUrl + '/delete-streak/' + newHabit.streakID);
+      axios
+        .get(baseUrl + '/delete-streak/' + newHabit.streakID)
+        .then(response => {
+          console.log(response);
+        });
 
       setHabits(newHabits);
     } else if (updateType != null && updateType == 'edit') {
       newHabits[index].streakName = newHabit.streakName;
       newHabits[index].primaryColor = newHabit.primaryColor;
       newHabits[index].friends = newHabit.friends;
-      newHabits[index].dateLastCompleted = newHabit.dateLastCompleted;
-      (newHabits[index].reminderTime =
-        newHabit.reminderTime == null ? '00:00:00' : newHabit.reminderTime),
-        console.log(newHabit.reminderTime);
-      const updateObject = {
-        userID: userid,
+      newHabits[index].reminderTime = newHabit.reminderTime;
+      newHabits[index].isBreakingHabit = newHabit.isBreakingHabit;
+
+      let updateObject = {
+        userID: email,
         streakID: newHabit.streakID,
         streakName: newHabit.streakName,
-        dateLastCompleted: '2022-01-02',
-        completionCount: 2,
         frequencySetting: 1,
         primaryColor: newHabit.primaryColor,
         secondaryColor: newHabit.secondaryColor,
-        isGroupStreak: newHabit.isGroupStreak,
-        reminderTime: newHabit.reminderTime,
-        isBreakingHabit: newHabit.isBreakingHabit,
+        reminderTime:
+          newHabit.reminderTime == null ? '' : newHabit.reminderTime,
+        isBreakingHabit: newHabit.isBreakingHabit ? 1 : 0,
+        isGroupStreak: newHabit.isGroupStreak ? 1 : 0,
       };
+      if (newHabit.deleteFriends != null) {
+        updateObject.removeFriends = newHabit.deleteFriends;
+      }
+      if (newHabit.inviteFriends != null) {
+        updateObject.inviteFriends = newHabit.inviteFriends;
+      }
+
       console.log(updateObject);
       axios.post(baseUrl + '/edit-streak', updateObject).then(response => {
         console.log(response);
@@ -319,23 +334,61 @@ const App: () => Node = () => {
       return newHabit;
     } else if (updateType != null && updateType == 'increment') {
       newHabit.completionCount += newHabit.isBreakingHabit ? -1 : 1;
-      newHabit.dateLastCompleted = new Date().toISOString();
-      newHabits[index].completionCount = newHabit.completionCount;
-      newHabits[index].dateLastCompleted = newHabit.dateLastCompleted;
-      setHabits(newHabits);
-      console.log('sending back after incrrement App.js');
-      console.log('initial');
-      console.log(newHabit);
-      console.log('updated to');
-      console.log(newHabit);
 
-      return newHabit;
+      if (newHabit.completionCount < 0) {
+        updateHabit(index, newHabit, 'delete');
+        return null;
+      } else {
+        newHabits[index].completionCount = newHabit.completionCount;
+        newHabit.dateLastCompleted = new Date().toISOString().split('T')[0];
+        newHabits[index].dateLastCompleted = newHabit.dateLastCompleted;
+        setHabits(newHabits);
+
+        axios
+          .post(baseUrl + '/increment-streak', {
+            streakID: newHabit.streakID,
+            dateCompleted: newHabit.dateLastCompleted.split('T')[0],
+            userID: email,
+          })
+          .then(response => {
+            console.log(response);
+          });
+
+        return newHabit;
+      }
     } else if (updateType != null && updateType == 'undo') {
       newHabit.completionCount += newHabit.isBreakingHabit ? 1 : -1;
       newHabit.dateLastCompleted = null;
       newHabits[index].completionCount = newHabit.completionCount;
-      newHabits[index].dateLastCompleted = newHabit.dateLastCompleted;
+      if (newHabits[index].streakLog != null) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const dates = newHabits[index].streakLog
+          .map(log => log.dateCompleted)
+          .filter(dateStr => todayStr != dateStr);
+        dates.sort();
+        console.log('dates');
+        console.log(newHabits[index].streakLog);
+        if (dates.length > 0) {
+          newHabits[index].dateLastCompleted = dates[0];
+        } else {
+          newHabits[index].dateLastCompleted =
+            newHabit.createDate != todayStr ? newHabit.createDate : todayStr;
+        }
+      }
+
       setHabits(newHabits);
+
+      const obj = {
+        streakID: newHabit.streakID,
+        dateCompleted: new Date().toISOString().split('T')[0],
+        userID: email,
+      };
+      console.log('undo: ');
+      console.log(obj);
+      axios.post(baseUrl + '/undo-update-streak', obj).then(response => {
+        console.log(response);
+      });
+
       return newHabit;
     }
   };
@@ -349,6 +402,16 @@ const App: () => Node = () => {
         ],
       },
     ]);
+  };
+
+  const login = e => {
+    try {
+      AsyncStorage.setItem('@email', e);
+      email = e;
+      setLoggedIn(true);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const onTapHabit = (index, tappedHabit) => {
@@ -373,7 +436,7 @@ const App: () => Node = () => {
     // already completed do nothing
     if (
       pressedHabit.dateLastCompleted != null &&
-      isToday(new Date(pressedHabit.dateLastCompleted))
+      isToday(pressedHabit.dateLastCompleted)
     ) {
       return pressedHabit;
     }
@@ -382,20 +445,35 @@ const App: () => Node = () => {
   };
 
   const [habits, setHabits] = useState([]);
-  const [isLoggedIn, setLoggedIn] = useState(true);
+  const [isLoggedIn, setLoggedIn] = useState(false);
+  const [isCreateAccount, setCreateAccount] = useState(true);
 
   const HabitStack = createNativeStackNavigator();
-
   // Fetch all streaks for the user only once
+
+  AsyncStorage.getItem('@email').then(value => {
+    console.log('email:');
+    console.log(value);
+    if (!isLoggedIn && value != null) {
+      email = value;
+      // setLoggedIn(true);
+    }
+  });
+
   React.useEffect(() => {
-    axios({
-      method: 'get',
-      url: `${baseUrl}/get-streak-by-user/${userid}`,
-    }).then(response => {
-      setHabits(response.data);
-      console.log(response.data);
-    });
-  }, []);
+    console.log('calling!!');
+    if (isLoggedIn) {
+      axios({
+        method: 'get',
+        url: `${baseUrl}/get-streak-by-user/${email}`,
+      }).then(response => {
+        setHabits(response.data);
+        console.log(response.data);
+      });
+    } else {
+      // try to get from async storage
+    }
+  }, [isLoggedIn]);
 
   const type = 'localNotification';
   PushNotificationIOS.addEventListener(type, onRemoteNotification);
@@ -403,7 +481,6 @@ const App: () => Node = () => {
   function onRemoteNotification(notification) {
     const actionIdentifier = notification.getActionIdentifier();
 
-    // TODO: mark as completed will increment everything
     console.log('Handling notification within app');
     console.log(notification);
     if (actionIdentifier == 'complete') {
@@ -468,13 +545,53 @@ const App: () => Node = () => {
   const logInComp = (
     <LoginScreen
       onLoginPress={() => {
-        setLoggedIn(true);
+        if (isCreateAccount) {
+          axios
+            .post(authBaseUrl + '/addUser', {userID: email, password: password})
+            .catch(error =>
+              alert(
+                error +
+                  '. You may already have an account. Tap below to login.',
+              ),
+            )
+            .then(response => {
+              if (response != null) {
+                login(email);
+              }
+            });
+        } else {
+          console.log('account:', email, password);
+          axios
+            .post(authBaseUrl + '/login', {userID: email, password: password})
+            .catch(error =>
+              alert(
+                error +
+                  ". You're login details are incorrect. Tap below to create an account.",
+              ),
+            )
+            .then(response => {
+              if (response != null) {
+                login(email);
+              }
+            });
+        }
       }}
-      onEmailChange={email => {}}
-      onPasswordChange={password => {}}
+      onEmailChange={e => {
+        email = e;
+      }}
+      onPasswordChange={p => {
+        password = p;
+      }}
+      email={email}
       disableSocialButtons
-      disableDivider
-      haveAccountText={''}></LoginScreen>
+      logoImageSource={bg}
+      // disableDivider
+      onHaveAccountPress={() => setCreateAccount(prev => !prev)}
+      haveAccountText={
+        isCreateAccount
+          ? 'Have an account already? Tap to login.'
+          : "Don't have an account? Tap to create one."
+      }></LoginScreen>
   );
 
   setNotificationCategories();

@@ -102,8 +102,7 @@ export const Circle = props => {
       : habit.firstName
     : habit.streakName;
   const allowCompletion =
-    habit.dateLastCompleted == null ||
-    !isToday(new Date(habit.dateLastCompleted));
+    habit.dateLastCompleted == null || !isToday(habit.dateLastCompleted);
   return (
     <AnimatedTouchable
       disabled={allowTapHabit == null ? false : !allowTapHabit(habit)}

@@ -9,6 +9,7 @@ import {
   TextInput,
   ScrollView,
   Alert,
+  Switch,
 } from 'react-native';
 import {navigationRef} from './App';
 import {faCheck, faX} from '@fortawesome/free-solid-svg-icons';
@@ -93,6 +94,9 @@ export const EditHabit = ({route, navigation}) => {
   const [date, setDate] = useState(
     tappedHabit == null ? null : tappedHabit.reminderTime,
   );
+  const [isBreakable, setIsBreakable] = useState(
+    tappedHabit == null ? false : tappedHabit.isBreakingHabit,
+  );
   const [dateObject, setDateObject] = useState(
     convertTimeToDate(tappedHabit != null ? tappedHabit.reminderTime : null),
   );
@@ -135,7 +139,7 @@ export const EditHabit = ({route, navigation}) => {
     let newHabit = null;
     if (tappedHabit == null) {
       newHabit = {
-        completionCount: 1,
+        completionCount: isBreakable ? 21 : 0,
         createDate: new Date().toISOString(),
         streakName: habitName,
         primaryColor: habitColor,
@@ -143,19 +147,24 @@ export const EditHabit = ({route, navigation}) => {
         secondaryColor: habitColor,
         streakID: Math.floor(Math.random() * 1000000) + 1,
         reminderTime: date,
+        isBreakingHabit: isBreakable,
+        isGroupStreak: friends != null && friends.length > 0,
       };
       onHabitChange(-1, newHabit, 'create');
     } else {
       const clone = JSON.parse(JSON.stringify(tappedHabit));
       clone.streakName = habitName;
       clone.completionCount = streak;
-      // TODO: separate friends into delete and add lists!
       clone.friends = friends;
       clone.primaryColor = habitColor;
       clone.secondaryColor = habitColor;
       if (ownerName != null) {
         clone.firstName = ownerName;
       }
+      clone.inviteFriends = [];
+      clone.inviteFriends.push('nick@nick.com');
+      clone.dateLastCompleted = new Date().toISOString().split('T')[0];
+      clone.isBreakingHabit = isBreakable;
       clone.reminderTime = date;
       newHabit = clone;
       onHabitChange(index, clone, 'edit');
@@ -185,11 +194,23 @@ export const EditHabit = ({route, navigation}) => {
         clone.completionCount = 1;
         clone.firstName = friend.split('@')[0];
         clone.userID = friend;
+
+        if (clone.inviteFriends == null) {
+          clone.inviteFriends = [];
+        }
+        clone.inviteFriends.push(friend);
+        console.log(clone.inviteFriends);
         newFriends.push(clone);
       } else {
+        if (clone.deleteFriends == null) {
+          clone.deleteFriends = [];
+        }
+        clone.deleteFriends.push(friend);
+
         newFriends = newFriends.filter(f => {
           const trimmedOwnerName = f.userID.trim();
-          return trimmedOwnerName != friend.trim();
+          const filtered = trimmedOwnerName != friend.trim();
+          return filtered;
         });
       }
 
@@ -236,9 +257,32 @@ export const EditHabit = ({route, navigation}) => {
           onChangeColor={onChangeColor}
           colors={colors}
           color={habitColor}></HabitColorPicker>
+
         <View
           style={{
-            marginTop: 10,
+            flexDirection: 'row',
+            alignContent: 'center',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <Text>Break Habit: </Text>
+          <Switch
+            onValueChange={() => setIsBreakable(prev => !prev)}
+            value={isBreakable}
+          />
+        </View>
+
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: 'bold',
+            paddingBottom: 8,
+            textAlign: 'center',
+          }}>
+          Friends
+        </Text>
+        <View
+          style={{
             alignItems: 'center',
           }}>
           <TouchableOpacity

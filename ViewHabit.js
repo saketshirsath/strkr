@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   Image,
   Dimensions,
+  Linking,
 } from 'react-native';
 import {BarChart, LineChart} from 'react-native-chart-kit';
 import {isToday} from './App';
@@ -63,15 +64,14 @@ export const ViewHabit = ({route, navigation}) => {
       setHabit(returnValue);
       setAllowCompletion(
         returnValue.dateLastCompleted == null ||
-          !isToday(new Date(returnValue.dateLastCompleted)),
+          !isToday(returnValue.dateLastCompleted),
       );
     }
   };
 
   const [allowCompletion, setAllowCompletion] = useState(
     habit != null &&
-      (habit.dateLastCompleted == null ||
-        !isToday(new Date(habit.dateLastCompleted))),
+      (habit.dateLastCompleted == null || !isToday(habit.dateLastCompleted)),
   );
 
   navigation.setOptions({
@@ -124,7 +124,6 @@ export const ViewHabit = ({route, navigation}) => {
               width={viewDimensions.width * 0.9}
               height={250}></HabitGraph>
           </View>
-
           <TouchableOpacity
             onPress={() => {
               console.log(isCanvasReady);
@@ -148,11 +147,21 @@ export const ViewHabit = ({route, navigation}) => {
               {allowCompletion ? 'Complete for Today' : 'Undo Completion'}
             </Text>
           </TouchableOpacity>
-          <View style={{width: Dimensions.get('window').width}}>
-            <Image
-              source={ad}
-              style={{width: Dimensions.get('window').width}}></Image>
-          </View>
+          {habit != null &&
+          (habit.streakName.includes('read') ||
+            habit.streakName.includes('Read')) ? (
+            <TouchableOpacity
+              onPress={() => Linking.openURL('https://www.audible.com/')}>
+              <Image
+                source={ad}
+                style={{
+                  aspectRatio: 960 / 116,
+                  width: '100%',
+                  // Without height undefined it won't work
+                  height: undefined,
+                }}></Image>
+            </TouchableOpacity>
+          ) : null}
         </View>
       )}
     </SafeAreaView>

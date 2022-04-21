@@ -25,12 +25,17 @@ export const BtnGroup = ({onChangeDate, date}) => {
       : 1,
   );
 
+  const onPickerChange = (picker, date) => {
+    onChange(date);
+  };
+
   const onChange = selectedDate => {
     const currentDate = selectedDate;
     if (onChangeDate) {
       if (currentDate == null) {
         onChangeDate(null);
       } else {
+        console.log(currentDate);
         var hours = '0' + currentDate.getHours();
         var minutes = '0' + currentDate.getMinutes();
         var seconds = '0' + currentDate.getSeconds();
@@ -140,7 +145,7 @@ export const BtnGroup = ({onChangeDate, date}) => {
             testID="dateTimePicker"
             value={date}
             mode={'time'}
-            onChange={onChange}
+            onChange={onPickerChange}
             style={{width: 100, height: 50}}
             themeVariant="light"
           />
