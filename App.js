@@ -35,6 +35,122 @@ import PushNotification from 'react-native-push-notification';
 email = '';
 password = '';
 
+const demoData = [
+  {
+    streakID: 22,
+    isBreakingHabit: 0,
+    primaryColor: '#AE2012',
+    frequencySetting: 1,
+    createDate: '2022-04-23',
+    isGroupStreak: 0,
+    streakName: 'Walk Dog',
+    secondaryColor: '#AE2012',
+    dateLastCompleted: true,
+    reminderTime: '00:00:00',
+    userID: 'test@test.com',
+    completionCount: 4,
+    streakLog: [],
+  },
+  {
+    streakID: 23,
+    isBreakingHabit: 0,
+    primaryColor: '#CA6702',
+    frequencySetting: 1,
+    createDate: '2022-04-23',
+    isGroupStreak: 0,
+    streakName: 'Meditate',
+    secondaryColor: '#CA6702',
+    dateLastCompleted: true,
+    reminderTime: '00:00:00',
+    userID: 'test@test.com',
+    completionCount: 1,
+    streakLog: [],
+  },
+  {
+    streakID: 24,
+    isBreakingHabit: 0,
+    primaryColor: '#0A9396',
+    frequencySetting: 1,
+    createDate: '2022-04-23',
+    isGroupStreak: 0,
+    streakName: 'Study',
+    secondaryColor: '#0A9396',
+    dateLastCompleted: true,
+    reminderTime: '00:00:00',
+    userID: 'test@test.com',
+    completionCount: 5,
+    streakLog: [],
+  },
+  {
+    streakID: 25,
+    isBreakingHabit: 0,
+    primaryColor: '#005F73',
+    frequencySetting: 1,
+    createDate: '2022-04-23',
+    isGroupStreak: 0,
+    streakName: 'Workout',
+    secondaryColor: '#005F73',
+    dateLastCompleted: true,
+    reminderTime: '00:00:00',
+    userID: 'test@test.com',
+    completionCount: 8,
+    streakLog: [],
+    friends: [
+      {
+        userID: 'test@test.com',
+        firstName: 'Nick',
+        primaryColor: '#001219',
+        secondaryColor: '#001219',
+        completionCount: 2,
+      },
+      {
+        userID: 'test@test.com',
+        firstName: 'Ashley',
+        primaryColor: '#94D2BD',
+        secondaryColor: '#94D2BD',
+        completionCount: 18,
+      },
+      {
+        userID: 'test@test.com',
+        firstName: 'Carlota',
+        primaryColor: '#EE9B00',
+        secondaryColor: '#EE9B00',
+        completionCount: 13,
+      },
+    ],
+  },
+  {
+    streakID: 26,
+    isBreakingHabit: 1,
+    primaryColor: '#001219',
+    frequencySetting: 1,
+    createDate: '2022-04-23',
+    isGroupStreak: 0,
+    streakName: 'Quit Smoking',
+    secondaryColor: '#001219',
+    dateLastCompleted: true,
+    reminderTime: '00:00:00',
+    userID: 'test@test.com',
+    completionCount: 21,
+    streakLog: [],
+  },
+  {
+    streakID: 27,
+    isBreakingHabit: 0,
+    primaryColor: '#BB3E03',
+    frequencySetting: 1,
+    createDate: '2022-04-23',
+    isGroupStreak: 0,
+    streakName: 'Wake up Early',
+    secondaryColor: '#BB3E03',
+    dateLastCompleted: true,
+    reminderTime: '00:00:00',
+    userID: 'test@test.com',
+    completionCount: 11,
+    streakLog: [],
+  },
+];
+
 // Must be outside of any component LifeCycle (such as `componentDidMount`).
 PushNotification.configure({
   // (optional) Called when Token is generated (iOS and Android)
@@ -281,7 +397,6 @@ const App: () => Node = () => {
       axios.post(baseUrl + '/new-streak', pushRequest).then(response => {
         console.log(response);
       });
-      i;
       // TODO: send new habit, like later
 
       return newHabit;
@@ -409,7 +524,7 @@ const App: () => Node = () => {
     try {
       AsyncStorage.setItem('@email', e);
       email = e;
-      setLoggedIn(true);
+      // setLoggedIn(true);
     } catch (error) {
       console.log(error);
     }
@@ -468,7 +583,8 @@ const App: () => Node = () => {
         method: 'get',
         url: `${baseUrl}/get-streak-by-user/${email}`,
       }).then(response => {
-        setHabits(response.data);
+        // setHabits(response.data);
+        setHabits(demoData);
         console.log(response.data);
       });
     } else {
