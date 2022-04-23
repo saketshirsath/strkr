@@ -281,7 +281,7 @@ const App: () => Node = () => {
       axios.post(baseUrl + '/new-streak', pushRequest).then(response => {
         console.log(response);
       });
-
+      i;
       // TODO: send new habit, like later
 
       return newHabit;
@@ -360,21 +360,22 @@ const App: () => Node = () => {
       newHabit.completionCount += newHabit.isBreakingHabit ? 1 : -1;
       newHabit.dateLastCompleted = null;
       newHabits[index].completionCount = newHabit.completionCount;
-      if (newHabits[index].streakLog != null) {
-        const todayStr = new Date().toISOString().split('T')[0];
-        const dates = newHabits[index].streakLog
-          .map(log => log.dateCompleted)
-          .filter(dateStr => todayStr != dateStr);
-        dates.sort();
-        console.log('dates');
-        console.log(newHabits[index].streakLog);
-        if (dates.length > 0) {
-          newHabits[index].dateLastCompleted = dates[0];
-        } else {
-          newHabits[index].dateLastCompleted =
-            newHabit.createDate != todayStr ? newHabit.createDate : todayStr;
-        }
-      }
+      newHabits[index].dateLastCompleted = newHabit.dateLastCompleted;
+      // if (newHabits[index].streakLog != null) {
+      //   const todayStr = new Date().toISOString().split('T')[0];
+      //   const dates = newHabits[index].streakLog
+      //     .map(log => log.dateCompleted)
+      //     .filter(dateStr => todayStr != dateStr);
+      //   dates.sort();
+      //   console.log('dates');
+      //   console.log(newHabits[index].streakLog);
+      //   if (dates.length > 0) {
+      //     newHabits[index].dateLastCompleted = dates[0];
+      //   } else {
+      //     newHabits[index].dateLastCompleted =
+      //       newHabit.createDate != todayStr ? newHabit.createDate : todayStr;
+      //   }
+      // }
 
       setHabits(newHabits);
 
@@ -456,7 +457,7 @@ const App: () => Node = () => {
     console.log(value);
     if (!isLoggedIn && value != null) {
       email = value;
-      // setLoggedIn(true);
+      setLoggedIn(true);
     }
   });
 
