@@ -52,3 +52,53 @@ functions:
       - http: 
           path: /increment-streak
           method: post
+
+  edit-streak:
+    handler: scripts/streaks.editStreak
+    events:
+      - http: 
+          path: /edit-streak
+          method: post
+
+  delete-streak:
+    handler: scripts/streaks.deleteStreak
+    events:
+      - http: 
+          path: /delete-streak/{id}
+          method: get
+
+  undo-update-streak:
+    handler: scripts/streaks.undoLastUpdate
+    events:
+      - http: 
+          path: /undo-update-streak
+          method: post
+
+  login:
+    handler: scripts/userSystem.login
+    events:
+      - http: 
+          path: /login
+          method: post
+  
+  add-user:
+    handler: scripts/userSystem.addUser
+    events:
+      - http: 
+          path: /addUser
+          method: post
+
+  process-invite:
+    handler: scripts/userSystem.processInvite
+    events:
+      - http: 
+          path: /process-invite
+          method: post
+
+  get-user-invites:
+    handler: scripts/userSystem.getUserInvites
+    events:
+      - http: 
+          path: /get-user-invites/{id}
+          method: get
+    
