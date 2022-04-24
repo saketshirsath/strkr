@@ -510,14 +510,14 @@ const App: () => Node = () => {
   };
 
   const setNotificationCategories = () => {
-    PushNotificationIOS.setNotificationCategories([
-      {
-        id: 'userAction',
-        actions: [
-          {id: 'complete', title: 'Mark Complete', options: {foreground: true}},
-        ],
-      },
-    ]);
+    // PushNotificationIOS.setNotificationCategories([
+    //   {
+    //     id: 'userAction',
+    //     actions: [
+    //       {id: 'complete', title: 'Mark Complete', options: {foreground: true}},
+    //     ],
+    //   },
+    // ]);
   };
 
   const login = e => {
@@ -583,8 +583,8 @@ const App: () => Node = () => {
         method: 'get',
         url: `${baseUrl}/get-streak-by-user/${email}`,
       }).then(response => {
-        // setHabits(response.data);
-        setHabits(demoData);
+        setHabits(response.data);
+        // setHabits(demoData);
         console.log(response.data);
       });
     } else {
